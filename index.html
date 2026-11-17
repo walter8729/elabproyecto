@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Hub: Elaboración y Evaluación de Proyectos (2do Parcial)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para visualizaciones financieras -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Three.js para el Hero 3D interactivo -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP para animaciones fluidas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- KaTeX para renderizar fórmulas matemáticas elegantes sin solapamientos -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ],
+            throwOnError: false
+        });"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        
+        /* Soporte para scroll-mt y enlaces ancla */
+        section {
+            scroll-margin-top: 5.5rem;
+        }
+
+        /* Estilos de Impresión Limpios */
+        @media print {
+            header, #three-canvas-container, #flashcards, #quiz, #submercados-tabs, .no-print, button, nav {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 11pt;
+            }
+            .prose-report {
+                display: block !important;
+            }
+            main {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        }
+
+        /* Modal Lightbox para la Infografía */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .lightbox-modal.active {
+            display: flex;
+        }
+
+        /* Tipografia y scrollbar */
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+        pre, code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Prevenir solapamiento en fórmulas KaTeX */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.75rem 0;
+            margin: 1rem 0;
+        }
+        .katex {
+            font-size: 1.05em;
+            text-rendering: auto;
+        }
+
+        /* Tarjetas 3D Flip */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-preserve-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Estilos Markdown dentro del contenedor del informe con espaciado anti-solapamiento */
+        .prose-report h1 { font-size: 2.1rem; font-weight: 800; color: #0284c7; margin-top: 2rem; margin-bottom: 1.25rem; border-bottom: 2px solid #e0f2fe; padding-bottom: 0.5rem; line-height: 1.3; }
+        .prose-report h2 { font-size: 1.55rem; font-weight: 700; color: #0f172a; margin-top: 2.25rem; margin-bottom: 1rem; border-left: 4px solid #0284c7; padding-left: 0.85rem; line-height: 1.35; }
+        .prose-report h3 { font-size: 1.25rem; font-weight: 600; color: #334155; margin-top: 1.5rem; margin-bottom: 0.75rem; line-height: 1.4; }
+        .prose-report p { margin-bottom: 1.15rem; line-height: 1.8; color: #475569; word-break: break-word; }
+        .prose-report ul, .prose-report ol { margin-bottom: 1.25rem; padding-left: 1.75rem; color: #475569; }
+        .prose-report ul { list-style-type: disc; }
+        .prose-report ol { list-style-type: decimal; }
+        .prose-report li { margin-bottom: 0.5rem; line-height: 1.7; }
+        .prose-report table { width: 100%; border-collapse: collapse; margin: 1.75rem 0; font-size: 0.95rem; display: block; overflow-x: auto; }
+        .prose-report th, .prose-report td { border: 1px solid #e2e8f0; padding: 0.85rem 1.1rem; text-align: left; }
+        .prose-report th { background-color: #f8fafc; font-weight: 700; color: #1e293b; }
+        .prose-report tr:nth-child(even) { background-color: #f8fafc; }
+        .prose-report strong { color: #0f172a; font-weight: 700; }
+        .prose-report blockquote { border-left: 4px solid #38bdf8; padding: 1rem 1.25rem; font-style: italic; color: #0369a1; background: #f0f9ff; border-radius: 0.5rem; margin: 1.5rem 0; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-slate-200 shadow-sm transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-slate-900 tracking-tight text-lg block leading-tight">Master Hub Proyectos</span>
+                    <span class="text-xs font-semibold text-brand-600 uppercase tracking-wider">2do Parcial • 6 Clases Oficiales (3, 4, 5, 6, 7 y 10)</span>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-medium text-slate-600">
+                <a href="#hero" class="px-3 py-2 rounded-lg hover:text-brand-600 hover:bg-slate-100 transition"><i class="fa-solid fa-cube mr-1 text-xs text-brand-500"></i>Inicio 3D</a>
+                <a href="#ciclo" class="px-3 py-2 rounded-lg hover:text-brand-600 hover:bg-slate-100 transition">Ciclo & Fases</a>
+                <a href="#submercados" class="px-3 py-2 rounded-lg hover:text-brand-600 hover:bg-slate-100 transition">5 Submercados</a>
+                <a href="#tecnico" class="px-3 py-2 rounded-lg hover:text-brand-600 hover:bg-slate-100 transition">Estudio Técnico</a>
+                <a href="#financiero" class="px-3 py-2 rounded-lg hover:text-brand-600 hover:bg-slate-100 transition"><i class="fa-solid fa-calculator mr-1 text-xs text-brand-500"></i>VAN & TIR</a>
+                <a href="#flashcards" class="px-3 py-2 rounded-lg hover:text-brand-600 hover:bg-slate-100 transition"><i class="fa-solid fa-layer-group mr-1 text-xs text-brand-500"></i>Flashcards</a>
+                <a href="#quiz" class="px-3 py-2 rounded-lg hover:text-brand-600 hover:bg-slate-100 transition"><i class="fa-solid fa-circle-question mr-1 text-xs text-brand-500"></i>Examen</a>
+                <a href="#informe" class="px-3 py-2 rounded-lg bg-brand-50 text-brand-700 font-semibold hover:bg-brand-100 transition"><i class="fa-solid fa-book-open mr-1 text-xs"></i>Informe Completo</a>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="window.print()" class="hidden sm:flex px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition items-center">
+                    <i class="fa-solid fa-print mr-1.5"></i>Imprimir Resumen
+                </button>
+                <!-- Botón Menú Móvil -->
+                <button onclick="toggleMenuMovil()" class="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-xl" aria-label="Abrir menú">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Menú Móvil Desplegable -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white/95 px-4 py-3 space-y-2 text-sm font-semibold">
+            <a href="#hero" onclick="toggleMenuMovil()" class="block py-1.5 text-slate-700 hover:text-brand-600"><i class="fa-solid fa-cube mr-2 text-brand-500"></i>Inicio 3D</a>
+            <a href="#ciclo" onclick="toggleMenuMovil()" class="block py-1.5 text-slate-700 hover:text-brand-600"><i class="fa-solid fa-timeline mr-2 text-brand-500"></i>Ciclo & Fases</a>
+            <a href="#submercados" onclick="toggleMenuMovil()" class="block py-1.5 text-slate-700 hover:text-brand-600"><i class="fa-solid fa-chart-pie mr-2 text-brand-500"></i>5 Submercados</a>
+            <a href="#tecnico" onclick="toggleMenuMovil()" class="block py-1.5 text-slate-700 hover:text-brand-600"><i class="fa-solid fa-gears mr-2 text-brand-500"></i>Estudio Técnico & MIPYMES</a>
+            <a href="#financiero" onclick="toggleMenuMovil()" class="block py-1.5 text-slate-700 hover:text-brand-600"><i class="fa-solid fa-calculator mr-2 text-brand-500"></i>Simulador VAN & TIR</a>
+            <a href="#infografia-seccion" onclick="toggleMenuMovil()" class="block py-1.5 text-slate-700 hover:text-brand-600"><i class="fa-solid fa-image mr-2 text-brand-500"></i>Infografía</a>
+            <a href="#flashcards" onclick="toggleMenuMovil()" class="block py-1.5 text-slate-700 hover:text-brand-600"><i class="fa-solid fa-layer-group mr-2 text-brand-500"></i>Flashcards</a>
+            <a href="#quiz" onclick="toggleMenuMovil()" class="block py-1.5 text-slate-700 hover:text-brand-600"><i class="fa-solid fa-circle-question mr-2 text-brand-500"></i>Simulacro de Examen</a>
+            <a href="#informe" onclick="toggleMenuMovil()" class="block py-1.5 text-brand-600 font-bold"><i class="fa-solid fa-book-open mr-2"></i>Informe Completo</a>
+        </div>
+    </header>
+
+    <!-- Hero Section con Three.js 3D -->
+    <section id="hero" class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white py-16 lg:py-24">
+        <!-- Canvas 3D para Three.js -->
+        <div id="three-canvas-container" class="absolute inset-0 opacity-40 pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-7 space-y-6">
+                <div class="inline-flex items-center space-x-2 bg-brand-500/20 text-brand-300 border border-brand-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-brand-400 animate-ping"></span>
+                    <span>Material Didáctico Interactivo Oficial</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                    Elaboración y Evaluación de <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-accent-400">Proyectos</span>
+                </h1>
+                <p class="text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed">
+                    Todo el contenido oficial de las <strong>6 Clases Oficiales (3, 4, 5, 6, 7 y 10)</strong> sintetizado con rigor técnico, sin pérdidas de información, fórmulas matemáticas renderizadas con precisión y herramientas activas para fijar conceptos antes del examen.
+                </p>
+
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <a href="#quiz" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-600 text-white font-bold shadow-lg shadow-brand-500/30 hover:opacity-95 transition transform hover:-translate-y-0.5 flex items-center space-x-2">
+                        <i class="fa-solid fa-play text-sm"></i>
+                        <span>Iniciar Simulacro de Examen</span>
+                    </a>
+                    <a href="#financiero" class="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold backdrop-blur-sm border border-white/20 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-calculator text-sm text-brand-400"></i>
+                        <span>Simulador VAN y TIR</span>
+                    </a>
+                    <a href="#flashcards" class="px-5 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-clone text-sm text-accent-400"></i>
+                        <span>Flashcards 3D (12)</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Widget Resumen Rápido -->
+            <div class="lg:col-span-5 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-6 sm:p-7 shadow-2xl text-slate-100">
+                <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                    <h3 class="font-bold text-lg flex items-center"><i class="fa-solid fa-compass text-brand-400 mr-2"></i>Ejes Clave del Examen</h3>
+                    <span class="text-xs bg-brand-500/20 text-brand-300 px-2.5 py-0.5 rounded-full font-semibold">4 Módulos</span>
+                </div>
+                <div class="space-y-3 text-sm">
+                    <div class="p-3.5 rounded-xl bg-white/5 border border-white/5 hover:border-brand-400/50 transition">
+                        <div class="font-bold text-brand-300 flex items-center justify-between">
+                            <span>1. Ciclo de Vida & Planificación</span>
+                            <span class="text-xs text-slate-400 font-mono">Clase 3</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1 leading-relaxed">Preinversión (Idea, Perfil, Prefactibilidad, Factibilidad), Inversión, Operación, Evaluación y Gantt.</p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-white/5 border border-white/5 hover:border-brand-400/50 transition">
+                        <div class="font-bold text-brand-300 flex items-center justify-between">
+                            <span>2. Estudio de Mercado</span>
+                            <span class="text-xs text-slate-400 font-mono">Clases 4 y 5</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1 leading-relaxed">Los 5 Submercados (Proveedor, Competidor, Distribuidor, Consumidor, Externo) y Demografía (PEA/MEF).</p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-white/5 border border-white/5 hover:border-brand-400/50 transition">
+                        <div class="font-bold text-brand-300 flex items-center justify-between">
+                            <span>3. Estudio Técnico & Legal</span>
+                            <span class="text-xs text-slate-400 font-mono">Clases 6 y 7</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1 leading-relaxed">Localización (Macro/Micro), Capacidad, Procesos, MIPYMES (Decreto Nº 4535 / Ley 7444) y Jerarquía Social.</p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-white/5 border border-white/5 hover:border-brand-400/50 transition">
+                        <div class="font-bold text-brand-300 flex items-center justify-between">
+                            <span>4. Estudio Financiero</span>
+                            <span class="text-xs text-slate-400 font-mono">Clase 10</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1 leading-relaxed">Flujo de Caja, Depreciación (escudo fiscal), Fórmulas y Criterios Matemáticos de VAN y TIR.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+
+        <!-- BLOQUE 1: Ciclo de Vida y Fases del Proyecto -->
+        <section id="ciclo" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Módulo 1 • Clase 3</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Fundamentos y Ciclo de Vida del Proyecto</h2>
+                    <p class="text-slate-600 text-sm mt-1">Naturaleza de los proyectos, restricciones operativas y secuencia cronológica de maduración.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="px-3.5 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200">Restricciones: Tiempo • Presupuesto • Recursos Humanos</span>
+                </div>
+            </div>
+
+            <!-- Comparación Visual Proyecto Privado vs Proyecto Social (Sin solapamientos) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-3xl p-6 sm:p-7 relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute top-4 right-4 text-blue-300 text-4xl opacity-30 pointer-events-none"><i class="fa-solid fa-briefcase"></i></div>
+                    <div>
+                        <span class="text-xs font-bold text-blue-700 bg-blue-100 px-3 py-1 rounded-full uppercase tracking-wider">Iniciativa Privada</span>
+                        <h3 class="text-xl font-bold text-blue-950 mt-3">Proyecto Empresarial / Financiero</h3>
+                        <p class="text-sm text-blue-900/85 mt-2.5 leading-relaxed">
+                            Se fundamenta <strong>estrictamente en la existencia de una demanda con capacidad de pago efectiva</strong>, dispuesta a abonar el precio de venta para obtener lucro o utilidades económicas para inversionistas privados.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-blue-200 text-xs font-bold text-blue-800 bg-white/60 p-3.5 rounded-xl flex items-center">
+                        <i class="fa-solid fa-check-circle text-blue-600 mr-2 text-sm flex-shrink-0"></i>
+                        <span>Condición clave: Rentabilidad del capital privado (<span class="font-mono text-blue-900 font-bold">VAN &gt; 0</span>, <span class="font-mono text-blue-900 font-bold">TIR &gt; k</span>).</span>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-3xl p-6 sm:p-7 relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute top-4 right-4 text-emerald-300 text-4xl opacity-30 pointer-events-none"><i class="fa-solid fa-hands-holding-child"></i></div>
+                    <div>
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">Iniciativa Pública</span>
+                        <h3 class="text-xl font-bold text-emerald-950 mt-3">Proyecto Social / Público</h3>
+                        <p class="text-sm text-emerald-900/85 mt-2.5 leading-relaxed">
+                            Responde a <strong>necesidades insatisfechas de la población</strong> por razones éticas, políticas o sociales. Promovido por el Estado o agencias de cooperación para el bienestar colectivo, <strong>sin exigir obligatoriamente capacidad de pago a los beneficiarios</strong>.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-emerald-200 text-xs font-bold text-emerald-800 bg-white/60 p-3.5 rounded-xl flex items-center">
+                        <i class="fa-solid fa-check-circle text-emerald-600 mr-2 text-sm flex-shrink-0"></i>
+                        <span>Condición clave: Impacto social mensurable y costo-beneficio colectivo.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Línea de Tiempo Interactiva del Ciclo Integral -->
+            <h4 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                <i class="fa-solid fa-timeline text-brand-500 mr-2"></i>Las 4 Fases Integrales del Ciclo de Vida
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <!-- Fase 1 -->
+                <div class="border-2 border-brand-500 bg-brand-50/40 rounded-2xl p-5 relative shadow-sm">
+                    <div class="w-8 h-8 rounded-full bg-brand-600 text-white font-bold flex items-center justify-center text-sm mb-3">1</div>
+                    <h5 class="font-extrabold text-slate-900 text-base">Fase de Preinversión</h5>
+                    <p class="text-xs text-slate-600 mt-1 mb-3">Análisis y formulación antes de inmovilizar capital. Se divide en 4 niveles:</p>
+                    <ul class="text-xs space-y-2 text-slate-700">
+                        <li class="flex items-start"><i class="fa-solid fa-angle-right text-brand-600 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span><strong>Idea:</strong> Identificación preliminar de oportunidad o problema.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-angle-right text-brand-600 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span><strong>Perfil:</strong> Estimación global de costos y beneficios probables.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-angle-right text-brand-600 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span><strong>Prefactibilidad:</strong> Datos vigentes asumidos como <em>constantes</em> a futuro.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-angle-right text-brand-600 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span><strong>Factibilidad:</strong> Diseños de ingeniería finales y contratos demostrados.</span></li>
+                    </ul>
+                </div>
+                <!-- Fase 2 -->
+                <div class="border border-slate-200 bg-white rounded-2xl p-5 relative hover:border-slate-300 transition">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center text-sm mb-3">2</div>
+                    <h5 class="font-extrabold text-slate-900 text-base">Fase de Inversión</h5>
+                    <p class="text-xs text-slate-600 mt-1 mb-3">Materialización física y financiera del proyecto.</p>
+                    <ul class="text-xs space-y-2 text-slate-700">
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Adquisición de terrenos y obras civiles.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Montaje de maquinarias, instalaciones y equipos.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Capacitación de operarios y pruebas preliminares.</span></li>
+                    </ul>
+                </div>
+                <!-- Fase 3 -->
+                <div class="border border-slate-200 bg-white rounded-2xl p-5 relative hover:border-slate-300 transition">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center text-sm mb-3">3</div>
+                    <h5 class="font-extrabold text-slate-900 text-base">Fase de Operación</h5>
+                    <p class="text-xs text-slate-600 mt-1 mb-3">Puesta en marcha regular durante la vida útil proyectada.</p>
+                    <ul class="text-xs space-y-2 text-slate-700">
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Fabricación continua de bienes o prestación del servicio.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Generación sostenida de ingresos operativos de explotación.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Administración periódica de costos y capital de trabajo.</span></li>
+                    </ul>
+                </div>
+                <!-- Fase 4 -->
+                <div class="border border-slate-200 bg-white rounded-2xl p-5 relative hover:border-slate-300 transition">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center text-sm mb-3">4</div>
+                    <h5 class="font-extrabold text-slate-900 text-base">Fase de Evaluación</h5>
+                    <p class="text-xs text-slate-600 mt-1 mb-3">Control de gestión y comparación ex-post.</p>
+                    <ul class="text-xs space-y-2 text-slate-700">
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Cotejo de resultados reales vs. proyecciones financieras.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Adopción de medidas correctivas operativas inmediatas.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-check text-slate-500 mr-2 mt-0.5 text-xs flex-shrink-0"></i><span>Decisión sobre ampliación, modernización o cierre.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Diagrama de Gantt Simulado Interactivo -->
+            <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-2 mb-4">
+                    <div>
+                        <h4 class="font-bold text-base flex items-center text-brand-400">
+                            <i class="fa-solid fa-chart-gantt mr-2"></i>Herramienta de Planificación: Diagrama de Gantt
+                        </h4>
+                        <p class="text-xs text-slate-400">Software oficial: <strong>GanttProject</strong> y <strong>Trello</strong> (gestión colaborativa de flujos de trabajo).</p>
+                    </div>
+                    <span class="text-xs bg-slate-800 px-3 py-1 rounded-full text-slate-300 border border-slate-700">Cronograma del Proyecto de Inversión</span>
+                </div>
+                <!-- Tabla visual Gantt -->
+                <div class="overflow-x-auto">
+                    <div class="min-w-[620px] space-y-2.5 text-xs">
+                        <div class="grid grid-cols-12 text-slate-400 font-mono pb-2 border-b border-slate-800">
+                            <div class="col-span-4 font-bold">Actividad Clave</div>
+                            <div class="col-span-2 text-center">Mes 1</div>
+                            <div class="col-span-2 text-center">Mes 2</div>
+                            <div class="col-span-2 text-center">Mes 3</div>
+                            <div class="col-span-2 text-center">Mes 4</div>
+                        </div>
+                        <div class="grid grid-cols-12 items-center py-1">
+                            <div class="col-span-4 font-semibold text-slate-200">1. Estudio de Mercado & Prefactibilidad</div>
+                            <div class="col-span-4 bg-brand-500/80 rounded-lg py-1.5 px-2 text-center font-bold text-white shadow-sm">Ejecución Activa</div>
+                            <div class="col-span-4"></div>
+                        </div>
+                        <div class="grid grid-cols-12 items-center py-1">
+                            <div class="col-span-4 font-semibold text-slate-200">2. Ingeniería & Estudio Técnico</div>
+                            <div class="col-span-2"></div>
+                            <div class="col-span-4 bg-indigo-500/80 rounded-lg py-1.5 px-2 text-center font-bold text-white shadow-sm">Diseño de Procesos</div>
+                            <div class="col-span-2"></div>
+                        </div>
+                        <div class="grid grid-cols-12 items-center py-1">
+                            <div class="col-span-4 font-semibold text-slate-200">3. Estudio Financiero (VAN & TIR)</div>
+                            <div class="col-span-4"></div>
+                            <div class="col-span-4 bg-teal-500/80 rounded-lg py-1.5 px-2 text-center font-bold text-white shadow-sm">Evaluación de Rentabilidad</div>
+                        </div>
+                        <div class="grid grid-cols-12 items-center py-1">
+                            <div class="col-span-4 font-semibold text-amber-300"><i class="fa-solid fa-flag-checkered mr-1.5"></i>Hito: Aprobación del Inversionista</div>
+                            <div class="col-span-6"></div>
+                            <div class="col-span-2 bg-amber-400 text-slate-900 rounded-lg py-1.5 px-2 text-center font-black shadow-sm">Hito Final</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 2: Estudio de Mercado y los 5 Submercados -->
+        <section id="submercados" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-6 mb-8">
+                <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Módulo 2 • Clases 4 y 5</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Estudio de Mercado: Los Cinco Submercados</h2>
+                <p class="text-slate-600 text-sm mt-1">El mercado como primer filtro de viabilidad. Haz clic en cada submercado para revelar su impacto operativo y comercial.</p>
+            </div>
+
+            <!-- Selector de los 5 Submercados -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6" id="submercados-tabs">
+                <button onclick="seleccionarSubmercado(0)" class="submercado-btn active p-4 rounded-2xl border-2 border-brand-500 bg-brand-50 text-brand-900 font-bold text-left transition transform hover:-translate-y-0.5 text-sm shadow-sm">
+                    <div class="text-brand-600 text-lg mb-1"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                    1. Proveedor
+                </button>
+                <button onclick="seleccionarSubmercado(1)" class="submercado-btn p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-left transition transform hover:-translate-y-0.5 text-sm">
+                    <div class="text-slate-500 text-lg mb-1"><i class="fa-solid fa-chess"></i></div>
+                    2. Competidor
+                </button>
+                <button onclick="seleccionarSubmercado(2)" class="submercado-btn p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-left transition transform hover:-translate-y-0.5 text-sm">
+                    <div class="text-slate-500 text-lg mb-1"><i class="fa-solid fa-route"></i></div>
+                    3. Distribuidor
+                </button>
+                <button onclick="seleccionarSubmercado(3)" class="submercado-btn p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-left transition transform hover:-translate-y-0.5 text-sm">
+                    <div class="text-slate-500 text-lg mb-1"><i class="fa-solid fa-users"></i></div>
+                    4. Consumidor
+                </button>
+                <button onclick="seleccionarSubmercado(4)" class="submercado-btn p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-left transition transform hover:-translate-y-0.5 text-sm">
+                    <div class="text-slate-500 text-lg mb-1"><i class="fa-solid fa-earth-americas"></i></div>
+                    5. Externo
+                </button>
+            </div>
+
+            <!-- Panel de Contenido Dinámico de Submercados -->
+            <div id="submercado-detalle" class="bg-gradient-to-r from-slate-50 to-blue-50/50 border border-slate-200 rounded-3xl p-6 sm:p-8 transition-all">
+                <!-- Se llena con JS -->
+            </div>
+
+            <!-- Variables Demográficas y Estrategias Competitivas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-slate-100">
+                <div class="p-6 bg-white border border-slate-200 rounded-3xl">
+                    <h4 class="font-bold text-slate-900 text-base mb-2 flex items-center text-brand-700">
+                        <i class="fa-solid fa-people-roof mr-2"></i>Estructura Sociodemográfica (Clase 5)
+                    </h4>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                        La pirámide de población dicta la demanda potencial presente y futura. La PEA abarca ampliamente de <strong>15 a 64 años</strong> y las MEF de <strong>15 a 49 años</strong>. El tramo de <strong>15 a 49 años</strong> representa la <strong>intersección o solapamiento crítico</strong> donde coincide la fuerza de trabajo activa con el público clave de reproducción y consumo familiar.
+                    </p>
+                    <div class="text-xs bg-slate-50 p-3 rounded-xl border border-slate-200 text-slate-700">
+                        <strong>Dictamen del Estudio de Mercado:</strong> Determina con fundamento cuantitativo si existe una demanda insatisfecha que justifique continuar con los estudios de ingeniería técnica.
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white border border-slate-200 rounded-3xl">
+                    <h4 class="font-bold text-slate-900 text-base mb-2 flex items-center text-accent-600">
+                        <i class="fa-solid fa-bullseye mr-2"></i>Estrategias Competitivas (Michael Porter)
+                    </h4>
+                    <ul class="text-xs space-y-2 text-slate-600">
+                        <li class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                            <strong>Liderazgo en Costos:</strong> Precios bajos sustentados en economías de escala y alta eficiencia operativa.
+                        </li>
+                        <li class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                            <strong>Diferenciación:</strong> Cualidades únicas percibidas por el cliente (marca, calidad superior, servicio) para cobrar un sobreprecio.
+                        </li>
+                        <li class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                            <strong>Enfoque o Nicho:</strong> Concentración en un segmento específico o región desatendida.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 3: Estudio Técnico y Clasificación Empresarial -->
+        <section id="tecnico" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-6 mb-8">
+                <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Módulo 3 • Clases 6 y 7</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Estudio Técnico, Ingeniería y Marco Legal</h2>
+                <p class="text-slate-600 text-sm mt-1">Cómo producir físicamente el bien o servicio, dónde ubicarse y categorización oficial de empresas en Paraguay.</p>
+            </div>
+
+            <!-- Las 5 Preguntas del Estudio Técnico -->
+            <div class="mb-8">
+                <h4 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                    <i class="fa-solid fa-circle-question text-brand-500 mr-2"></i>Las 5 Preguntas Básicas que Resuelve el Estudio Técnico
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-center">
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <span class="text-brand-600 font-extrabold text-xl block mb-1">¿Dónde?</span>
+                        <span class="text-xs font-bold text-slate-800 block">Localización</span>
+                        <span class="text-[11px] text-slate-500">Macro y Microlocalización</span>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <span class="text-brand-600 font-extrabold text-xl block mb-1">¿Cuánto?</span>
+                        <span class="text-xs font-bold text-slate-800 block">Tamaño</span>
+                        <span class="text-[11px] text-slate-500">Capacidad instalada vs. normal</span>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <span class="text-brand-600 font-extrabold text-xl block mb-1">¿Cuándo?</span>
+                        <span class="text-xs font-bold text-slate-800 block">Calendario</span>
+                        <span class="text-[11px] text-slate-500">Cronograma de obras y montaje</span>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <span class="text-brand-600 font-extrabold text-xl block mb-1">¿Cómo?</span>
+                        <span class="text-xs font-bold text-slate-800 block">Ingeniería</span>
+                        <span class="text-[11px] text-slate-500">Procesos, tecnología y flujos</span>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <span class="text-brand-600 font-extrabold text-xl block mb-1">¿Con qué?</span>
+                        <span class="text-xs font-bold text-slate-800 block">Recursos</span>
+                        <span class="text-[11px] text-slate-500">Maquinarias, equipos y personal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculadora Interactiva de Localización -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 sm:p-8 mb-10 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-700 gap-2 mb-4">
+                    <div>
+                        <h4 class="font-extrabold text-lg text-brand-400 flex items-center">
+                            <i class="fa-solid fa-map-location-dot mr-2"></i>Simulador Metodológico: Ponderación de Factores de Localización
+                        </h4>
+                        <p class="text-xs text-slate-300">Asigna notas del 1 al 10 para evaluar objetivamente dos alternativas de localización física.</p>
+                    </div>
+                    <span class="text-xs bg-brand-500/20 text-brand-300 border border-brand-500/30 px-3 py-1 rounded-full font-mono">Macro / Microlocalización</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left min-w-[550px]">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-slate-700 font-semibold">
+                                <th class="py-2.5">Factor Crítico</th>
+                                <th class="py-2.5 text-center">Peso (%)</th>
+                                <th class="py-2.5 text-center">Nota Opción A (Asunción)</th>
+                                <th class="py-2.5 text-center">Nota Opción B (Villeta)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr>
+                                <td class="py-2.5 font-medium">Cercanía a Fuentes de Materia Prima</td>
+                                <td class="text-center font-mono">30%</td>
+                                <td class="text-center"><input type="number" id="pesoA1" value="6" min="1" max="10" class="w-14 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-center font-bold text-brand-400 focus:outline-none focus:border-brand-400" onchange="calcularLocalizacion()"></td>
+                                <td class="text-center"><input type="number" id="pesoB1" value="9" min="1" max="10" class="w-14 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-center font-bold text-accent-400 focus:outline-none focus:border-accent-400" onchange="calcularLocalizacion()"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 font-medium">Acceso a Mercado Consumidor</td>
+                                <td class="text-center font-mono">25%</td>
+                                <td class="text-center"><input type="number" id="pesoA2" value="9" min="1" max="10" class="w-14 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-center font-bold text-brand-400 focus:outline-none focus:border-brand-400" onchange="calcularLocalizacion()"></td>
+                                <td class="text-center"><input type="number" id="pesoB2" value="7" min="1" max="10" class="w-14 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-center font-bold text-accent-400 focus:outline-none focus:border-accent-400" onchange="calcularLocalizacion()"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 font-medium">Disponibilidad de Mano de Obra Calificada</td>
+                                <td class="text-center font-mono">25%</td>
+                                <td class="text-center"><input type="number" id="pesoA3" value="8" min="1" max="10" class="w-14 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-center font-bold text-brand-400 focus:outline-none focus:border-brand-400" onchange="calcularLocalizacion()"></td>
+                                <td class="text-center"><input type="number" id="pesoB3" value="8" min="1" max="10" class="w-14 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-center font-bold text-accent-400 focus:outline-none focus:border-accent-400" onchange="calcularLocalizacion()"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 font-medium">Costos de Terreno y Régimen Impositivo</td>
+                                <td class="text-center font-mono">20%</td>
+                                <td class="text-center"><input type="number" id="pesoA4" value="5" min="1" max="10" class="w-14 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-center font-bold text-brand-400 focus:outline-none focus:border-brand-400" onchange="calcularLocalizacion()"></td>
+                                <td class="text-center"><input type="number" id="pesoB4" value="9" min="1" max="10" class="w-14 bg-slate-800 border border-slate-600 rounded px-2 py-1 text-center font-bold text-accent-400 focus:outline-none focus:border-accent-400" onchange="calcularLocalizacion()"></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-bold border-t-2 border-slate-600 text-sm">
+                                <td class="pt-3 text-slate-300">Puntaje Ponderado Final:</td>
+                                <td></td>
+                                <td class="pt-3 text-center text-brand-400 text-base font-mono" id="scoreA">7.05</td>
+                                <td class="pt-3 text-center text-accent-400 text-base font-mono" id="scoreB">8.25</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="mt-4 p-3.5 bg-slate-800/90 rounded-2xl border border-slate-700 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <span id="veredicto-loc" class="text-slate-200">Ubicación recomendada: <strong>Opción B (Villeta)</strong> por mayor ventaja en costos de terreno y cercanía portuaria/insumos.</span>
+                    <button onclick="calcularLocalizacion()" class="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-500 rounded-xl text-white font-semibold transition self-end sm:self-auto">Recalcular</button>
+                </div>
+            </div>
+
+            <!-- Tabla Oficial MIPYMES y Jerarquía Social (Clase 7) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Tabla MIPYMES Paraguay -->
+                <div class="lg:col-span-7">
+                    <h4 class="font-bold text-slate-900 text-base mb-3 flex items-center text-brand-700">
+                        <i class="fa-solid fa-building-flag mr-2"></i>Clasificación Oficial de MIPYMES en Paraguay (Decreto Nº 4535 / Ley 7444)
+                    </h4>
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-100 font-bold text-slate-700">
+                                <tr>
+                                    <th class="p-3">Categoría MIPYME</th>
+                                    <th class="p-3">Personal Ocupado</th>
+                                    <th class="p-3 text-brand-700">Facturación Anual Vigente (Decreto Nº 4535) ⭐</th>
+                                    <th class="p-3 text-slate-400 font-normal">Antiguo Decreto 3698/20</th>
+                                    <th class="p-3 text-slate-400 font-normal">Base Ley 4457/12</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-600">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-semibold text-slate-900">Microempresa (MIE)</td>
+                                    <td class="p-3">Hasta 10 trabajadores (incluye familiares)</td>
+                                    <td class="p-3 font-mono font-black text-slate-900 bg-emerald-50/60">Hasta ₲ 1.000.000.000</td>
+                                    <td class="p-3 font-mono text-slate-400">₲ 646.045.491</td>
+                                    <td class="p-3 font-mono text-slate-400">₲ 500.000.000</td>
+                                </tr>
+                                <tr class="bg-blue-50/80 font-semibold text-blue-950">
+                                    <td class="p-3">Pequeña Empresa (PE) ⭐</td>
+                                    <td class="p-3">De 11 a 30 trabajadores</td>
+                                    <td class="p-3 font-mono font-black text-blue-800 bg-blue-100/60">Hasta ₲ 5.000.000.000</td>
+                                    <td class="p-3 font-mono text-slate-400">₲ 3.230.227.453</td>
+                                    <td class="p-3 font-mono text-slate-400">₲ 2.500.000.000</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-semibold text-slate-900">Mediana Empresa (ME)</td>
+                                    <td class="p-3">De 31 a 50 trabajadores</td>
+                                    <td class="p-3 font-mono font-black text-slate-900 bg-emerald-50/60">Hasta ₲ 10.000.000.000</td>
+                                    <td class="p-3 font-mono text-slate-400">₲ 7.752.545.886</td>
+                                    <td class="p-3 font-mono text-slate-400">₲ 6.000.000.000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2 italic"><div class="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
+    <div class="font-bold flex items-center"><i class="fa-solid fa-triangle-exclamation text-amber-600 mr-2"></i>Actualización Oficial del Cuaderno (Decreto Nº 4535 - Artículo 5º):</div>
+    <p>El <strong>Decreto Nº 4535</strong> (reglamentario de la <strong>Ley Nº 7444</strong>) actualizó formalmente los montos máximos de facturación bruta anual: <strong>Microempresa: hasta 1.000 millones</strong>, <strong>Pequeña Empresa: hasta 5.000 millones</strong> y <strong>Mediana Empresa: hasta 10.000 millones de Guaraníes</strong>. En caso de discrepancia en trabajadores, prevalece siempre la facturación declarada ante la DNIT (Art. 6º).</p>
+</div>
+                </div>
+
+                <!-- Jerarquía Social -->
+                <div class="lg:col-span-5 bg-slate-50 p-5 sm:p-6 rounded-3xl border border-slate-200">
+                    <h4 class="font-bold text-slate-900 text-base mb-3 flex items-center text-teal-700">
+                        <i class="fa-solid fa-sitemap mr-2"></i>Articulación Jerárquica Social (Clase 7)
+                    </h4>
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2.5 bg-white rounded-xl border border-slate-200 shadow-sm">
+                            <span class="font-extrabold text-teal-700 block text-xs uppercase">1. Política Social</span>
+                            <span class="text-slate-600">Directrices estratégicas e ideológicas del Estado.</span>
+                        </div>
+                        <div class="p-2.5 bg-white rounded-xl border border-slate-200 shadow-sm ml-3">
+                            <span class="font-extrabold text-teal-700 block text-xs uppercase">2. Plan Social</span>
+                            <span class="text-slate-600">Marco temporal y presupuestario macro que engloba programas.</span>
+                        </div>
+                        <div class="p-2.5 bg-white rounded-xl border border-slate-200 shadow-sm ml-6">
+                            <span class="font-extrabold text-teal-700 block text-xs uppercase">3. Programa Social</span>
+                            <span class="text-slate-600">Conjunto coordinado de proyectos con una misma meta sectorial.</span>
+                        </div>
+                        <div class="p-2.5 bg-white rounded-xl border border-slate-200 shadow-sm ml-9 border-l-4 border-l-teal-600">
+                            <span class="font-extrabold text-teal-800 block text-xs uppercase">4. Proyecto Social ⭐</span>
+                            <span class="text-slate-700 font-medium">Unidad operativa elemental con inicio y fin específicos.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 4: Estudio Económico y Financiero (VAN & TIR) -->
+        <section id="financiero" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Módulo 4 • Clase 10</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Estudio Financiero: Flujo de Caja, VAN y TIR</h2>
+                    <p class="text-slate-600 text-sm mt-1">Cuantificación monetaria, matemática del valor tiempo del dinero y reglas de decisión.</p>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs px-4 py-2.5 rounded-2xl flex items-center">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mr-2.5 text-base flex-shrink-0"></i>
+                    <span>Depreciación: Se resta para pagar menos impuestos y luego se suma al Flujo Neto.</span>
+                </div>
+            </div>
+
+            <!-- Fórmulas y Reglas de Decisión con KaTeX y espaciado perfecto -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Tarjeta VAN -->
+                <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Criterio Absoluto de Riqueza</span>
+                            <span class="text-xs font-mono bg-blue-200 text-blue-800 px-2.5 py-0.5 rounded-full font-bold">VAN = BNA - I₀</span>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-900">Valor Actual Neto (VAN)</h3>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Representa el valor presente equivalente de los flujos netos proyectados descontados a la tasa mínima de costo de capital (<span class="font-mono font-bold text-slate-800">k</span>), deduciendo la inversión inicial.
+                        </p>
+                        <!-- Fórmula KaTeX en bloque sin solapamiento -->
+                        <div class="my-4 bg-white/80 p-3.5 rounded-2xl border border-blue-100 text-center font-mono text-sm text-blue-950 overflow-x-auto">
+                            $$\text{VAN} = -I_0 + \sum_{t=1}^{n} \frac{F_t}{(1+k)^t} = \text{BNA} - I_0$$
+                        </div>
+                    </div>
+                    <div class="space-y-1.5 text-xs">
+                        <div class="p-2.5 rounded-xl bg-emerald-100/70 border border-emerald-300 text-emerald-900 font-semibold flex items-center justify-between">
+                            <span>VAN &gt; 0: SE ACEPTA EL PROYECTO</span>
+                            <span class="text-[10px] uppercase font-bold">Genera Riqueza</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-amber-100/70 border border-amber-300 text-amber-900 font-semibold flex items-center justify-between">
+                            <span>VAN = 0: INDIFERENTE</span>
+                            <span class="text-[10px] uppercase font-bold">Rinde exactamente k</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-rose-100/70 border border-rose-300 text-rose-900 font-semibold flex items-center justify-between">
+                            <span>VAN &lt; 0: SE RECHAZA EL PROYECTO</span>
+                            <span class="text-[10px] uppercase font-bold">Destruye Valor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta TIR -->
+                <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider">Criterio Relativo de Rentabilidad</span>
+                            <span class="text-xs font-mono bg-indigo-200 text-indigo-800 px-2.5 py-0.5 rounded-full font-bold">TIR: VAN(TIR) = 0</span>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-900">Tasa Interna de Retorno (TIR)</h3>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Es la tasa de actualización que equilibra exactamente el Beneficio Neto Actualizado (BNA) con la inversión inicial, anulando el VAN.
+                        </p>
+                        <!-- Fórmula KaTeX en bloque sin solapamiento -->
+                        <div class="my-4 bg-white/80 p-3.5 rounded-2xl border border-indigo-100 text-center font-mono text-sm text-indigo-950 overflow-x-auto">
+                            $$-I_0 + \sum_{t=1}^{n} \frac{F_t}{(1+\text{TIR})^t} = 0$$
+                        </div>
+                    </div>
+                    <div class="space-y-1.5 text-xs">
+                        <div class="p-2.5 rounded-xl bg-emerald-100/70 border border-emerald-300 text-emerald-900 font-semibold flex items-center justify-between">
+                            <span>TIR &gt; k: SE ACEPTA EL PROYECTO</span>
+                            <span class="text-[10px] uppercase font-bold">Rinde más que el costo</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-amber-100/70 border border-amber-300 text-amber-900 font-semibold flex items-center justify-between">
+                            <span>TIR = k: INDIFERENTE</span>
+                            <span class="text-[10px] uppercase font-bold">Rendimiento Neutro</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-rose-100/70 border border-rose-300 text-rose-900 font-semibold flex items-center justify-between">
+                            <span>TIR &lt; k: SE RECHAZA EL PROYECTO</span>
+                            <span class="text-[10px] uppercase font-bold">Inviable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULADOR FINANCIERO INTERACTIVO CON CHART.JS -->
+            <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div class="border-b border-slate-800 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h4 class="text-xl font-bold text-brand-400 flex items-center">
+                            <i class="fa-solid fa-chart-line mr-2"></i>Simulador de Rentabilidad: Ejercicio Oficial de Examen
+                        </h4>
+                        <p class="text-xs text-slate-300">Modifica la Inversión, la Tasa de Descuento (<span class="font-mono text-brand-300">k</span>) o los Flujos para ver el recálculo y la gráfica al instante.</p>
+                    </div>
+                    <button onclick="restablecerEjercicioExamen()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700">
+                        Restablecer Ejercicio Oficial (I₀ = 12.000)
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <!-- Controles de Entrada -->
+                    <div class="lg:col-span-5 space-y-4 text-xs">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Inversión Inicial (I₀)</label>
+                                <input type="number" id="inputI0" value="12000" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 font-mono text-white text-sm focus:border-brand-500 focus:outline-none" oninput="actualizarSimulacion()">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Tasa Descuento k (%)</label>
+                                <input type="number" id="inputK" value="14" step="0.5" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 font-mono text-white text-sm focus:border-brand-500 focus:outline-none" oninput="actualizarSimulacion()">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">Flujos de Efectivo Años 1 a 5 ($)</label>
+                            <div class="grid grid-cols-5 gap-1.5">
+                                <div><span class="block text-[10px] text-slate-400 text-center mb-0.5">Año 1</span><input type="number" id="f1" value="4000" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-center font-mono text-xs" oninput="actualizarSimulacion()"></div>
+                                <div><span class="block text-[10px] text-slate-400 text-center mb-0.5">Año 2</span><input type="number" id="f2" value="4000" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-center font-mono text-xs" oninput="actualizarSimulacion()"></div>
+                                <div><span class="block text-[10px] text-slate-400 text-center mb-0.5">Año 3</span><input type="number" id="f3" value="4000" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-center font-mono text-xs" oninput="actualizarSimulacion()"></div>
+                                <div><span class="block text-[10px] text-slate-400 text-center mb-0.5">Año 4</span><input type="number" id="f4" value="4000" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-center font-mono text-xs" oninput="actualizarSimulacion()"></div>
+                                <div><span class="block text-[10px] text-slate-400 text-center mb-0.5">Año 5</span><input type="number" id="f5" value="5000" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-center font-mono text-xs" oninput="actualizarSimulacion()"></div>
+                            </div>
+                        </div>
+
+                        <!-- Métricas Resultantes -->
+                        <div class="p-4 bg-slate-800/90 rounded-2xl border border-slate-700 space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                                <span class="text-slate-400">Beneficio Neto Actualizado (BNA):</span>
+                                <span id="resBNA" class="font-mono font-bold text-slate-200 text-sm">$14.251,69</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                                <span class="text-slate-400 font-bold">Valor Actual Neto (VAN):</span>
+                                <span id="resVAN" class="font-mono font-black text-emerald-400 text-base">+$2.251,69</span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                                <span class="text-slate-400 font-bold">Tasa Interna Retorno (TIR aprox):</span>
+                                <span id="resTIR" class="font-mono font-black text-accent-300 text-base">21,33%</span>
+                            </div>
+                            <div id="badgeDecision" class="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold text-center text-xs">
+                                <i class="fa-solid fa-circle-check mr-1.5"></i>EL PROYECTO ES VIABLE (VAN &gt; 0 y TIR &gt; k)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico Chart.js -->
+                    <div class="lg:col-span-7 bg-slate-800/60 p-4 rounded-2xl border border-slate-700">
+                        <canvas id="chartVAN" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 5: Galería de Infografía de Estudio -->
+        <section id="infografia-seccion" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-4 mb-6 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Recurso Visual Sintético</span>
+                    <h2 class="text-2xl font-extrabold text-slate-900 mt-2">Infografía Oficial Generada en NotebookLM</h2>
+                    <p class="text-slate-600 text-xs mt-1">Esquema visual panorámico con los conceptos axiales de la materia.</p>
+                </div>
+                <a href="infografia_2do_parcial.png" download="infografia_elaboracion_proyectos_2do_parcial.png" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center">
+                    <i class="fa-solid fa-download mr-1.5"></i>Descargar PNG
+                </a>
+            </div>
+            <div class="relative rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-900 flex items-center justify-center p-4 group cursor-pointer" onclick="abrirLightbox()">
+                <img id="img-infografia-thumb" src="infografia_2do_parcial.png" alt="Infografía del 2do Parcial" class="max-h-[550px] w-auto object-contain transition-transform duration-500 group-hover:scale-[1.02] rounded-lg">
+                <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <span class="px-5 py-2.5 rounded-xl bg-white/90 text-slate-900 font-bold text-xs shadow-xl flex items-center">
+                        <i class="fa-solid fa-magnifying-glass-plus mr-2 text-brand-600"></i>Clic para Ampliar en Pantalla Completa (Zoom)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Modal Lightbox Pantalla Completa -->
+            <div id="lightbox" class="lightbox-modal" onclick="cerrarLightbox(event)">
+                <div class="relative max-w-5xl max-h-[92vh] w-full flex flex-col items-center">
+                    <button onclick="cerrarLightbox(event)" class="absolute -top-12 right-0 text-white hover:text-brand-400 font-bold text-sm bg-white/10 px-4 py-1.5 rounded-xl transition">
+                        <i class="fa-solid fa-xmark mr-1"></i>Cerrar (Esc)
+                    </button>
+                    <div class="overflow-auto max-h-[85vh] rounded-2xl border border-white/20 shadow-2xl p-2 bg-slate-900">
+                        <img src="infografia_2do_parcial.png" alt="Infografía Ampliada" class="w-full h-auto object-contain">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 6: FLASHCARDS INTERACTIVAS 3D -->
+        <section id="flashcards" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-accent-600 bg-accent-50 px-3 py-1 rounded-full">Práctica Activa</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Tarjetas de Memoria Rápida (Flashcards 3D)</h2>
+                    <p class="text-slate-600 text-sm mt-1">Haz clic sobre la tarjeta para girarla y revelar la respuesta oficial de la cátedra.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="fc-counter" class="text-xs font-bold px-3 py-1.5 bg-slate-100 text-slate-700 rounded-xl border border-slate-200">Tarjeta 1 de 12</span>
+                </div>
+            </div>
+
+            <div class="max-w-2xl mx-auto">
+                <!-- Tarjeta interactiva con Flip 3D -->
+                <div id="flashcard-container" class="perspective-1000 h-80 sm:h-96 cursor-pointer" onclick="voltearTarjeta()">
+                    <div id="flashcard-inner" class="relative w-full h-full duration-500 transform-style-preserve-3d shadow-xl rounded-3xl">
+                        <!-- Frente (Pregunta) -->
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-8 flex flex-col justify-between backface-hidden border-2 border-brand-500/30">
+                            <div class="flex justify-between items-center text-xs">
+                                <span id="fc-categoria" class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 font-bold border border-brand-500/30">Fundamentos (Clase 3)</span>
+                                <span class="text-slate-400"><i class="fa-solid fa-hand-pointer mr-1"></i>Clic para voltear</span>
+                            </div>
+                            <div class="my-auto text-center px-4">
+                                <div class="text-brand-400 text-3xl mb-4"><i class="fa-regular fa-circle-question"></i></div>
+                                <h3 id="fc-pregunta" class="text-xl sm:text-2xl font-bold leading-relaxed text-slate-100">
+                                    ¿Cuál es la diferencia fundamental entre un Proyecto Privado y un Proyecto Social?
+                                </h3>
+                            </div>
+                            <div class="text-center text-xs text-slate-400 font-mono">
+                                <i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i>Pista: <span id="fc-pista">Capacidad de pago vs. Bienestar común</span>
+                            </div>
+                        </div>
+
+                        <!-- Dorso (Respuesta) -->
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-brand-900 to-slate-900 text-white rounded-3xl p-8 flex flex-col justify-between backface-hidden rotate-y-180 border-2 border-accent-500/40">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Respuesta Oficial</span>
+                                <span class="text-slate-300"><i class="fa-solid fa-rotate mr-1"></i>Voltear</span>
+                            </div>
+                            <div class="my-auto px-4 overflow-y-auto max-h-48 text-sm sm:text-base leading-relaxed text-slate-200 text-center" id="fc-respuesta">
+                                Respuesta aquí
+                            </div>
+                            <div class="text-center text-xs text-slate-400">
+                                <span>Verificada contra el temario oficial</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controles de navegación Flashcards -->
+                <div class="flex justify-center items-center space-x-4 mt-6">
+                    <button onclick="anteriorTarjeta()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center">
+                        <i class="fa-solid fa-chevron-left mr-2"></i>Anterior
+                    </button>
+                    <button onclick="voltearTarjeta()" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-md shadow-brand-500/20 transition flex items-center">
+                        <i class="fa-solid fa-rotate mr-2"></i>Voltear Tarjeta
+                    </button>
+                    <button onclick="siguienteTarjeta()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center">
+                        Siguiente<i class="fa-solid fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 7: SIMULACRO DE EXAMEN (QUIZ CON PUNTAJE) -->
+        <section id="quiz" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full">Simulador de Evaluación</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Simulacro de Examen (10 Preguntas Tipo Test)</h2>
+                    <p class="text-slate-600 text-sm mt-1">Pon a prueba tu dominio antes de rendir con preguntas rigurosas extraídas de las 6 clases.</p>
+                </div>
+                <div class="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200 text-center">
+                    <span class="text-xs text-slate-500 font-bold block">Puntaje Actual</span>
+                    <span id="quiz-score-badge" class="font-black text-lg text-slate-900">0 / 10</span>
+                </div>
+            </div>
+
+            <!-- Contenedor del Quiz -->
+            <div id="quiz-container" class="space-y-6 max-w-3xl mx-auto">
+                <!-- Se llena dinámicamente con JS -->
+            </div>
+
+            <!-- Botón de Finalización -->
+            <div class="max-w-3xl mx-auto mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <button onclick="reiniciarQuiz()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                    <i class="fa-solid fa-arrow-rotate-left mr-1.5"></i>Reiniciar Simulacro
+                </button>
+                <div id="quiz-final-result" class="hidden text-sm font-bold text-slate-800"></div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 8: INFORME MAESTRO COMPLETO (SIN PERDER NADA) -->
+        <section id="informe" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-12 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-200 pb-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Documento Académico Íntegro</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">Guía de Estudio Maestro (Texto Completo)</h2>
+                    <p class="text-slate-600 text-sm mt-1">El informe analítico completo de NotebookLM con sus 10 secciones y glosario exhaustivo.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="copiarInformeTexto()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center">
+                        <i class="fa-regular fa-copy mr-1.5"></i>Copiar Todo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenedor con estilos Prose y KaTeX -->
+            <div class="prose-report max-w-none text-slate-700 text-sm sm:text-base leading-relaxed">
+                <h1>Guía de Estudio Maestro: Elaboración y Evaluación de Proyectos (Clases 3 a 10)</h1>
+<h2>Introducción y Orientación al Aprendizaje</h2>
+<p>La preparación integral para una evaluación en la cátedra de Elaboración y Evaluación de Proyectos exige comprender la disciplina como un sistema secuencial, donde cada fase y estudio condiciona directamente a los siguientes. Un proyecto no representa un esfuerzo aislado ni una simple idea de negocio; constituye una unidad estructurada de asignación de recursos diseñada para resolver una carencia, transformar una parcela de la realidad económica y social, o explotar una oportunidad de mercado identificada empíricamente.</p>
+<p>Este material organiza de manera rigurosa los núcleos temáticos abordados a lo largo del curso, estructurándose en cuatro bloques fundamentales: la conceptualización y planificación del ciclo de vida (Clase 3); el análisis profundo de la demanda, la oferta y las variables sociodemográficas en el Estudio de Mercado (Clases 4 y 5); la ingeniería, localización y organización operativa en el Estudio Técnico junto a la clasificación empresarial y el marco social (Clases 6 y 7); y la cuantificación monetaria mediante el Flujo de Caja y la evaluación de rentabilidad a través del Valor Actual Neto y la Tasa Interna de Retorno en el Estudio Económico y Financiero (Clase 10).</p>
+<p>Al finalizar el recorrido de esta guía, el estudiante dominará tanto los fundamentos teóricos como las matrices metodológicas y operativas exigidas para formular, justificar y evaluar proyectos de inversión con solvencia académica y profesional.</p>
+<hr />
+<h2>1. Fundamentos y Ciclo de Vida del Proyecto de Inversión (Clase 3)</h2>
+<h3>Concepto, Restricciones y Carácter del Proyecto</h3>
+<p>Un proyecto de inversión se define como una unidad de acción orientada a alcanzar un objetivo específico y medible que guía todas las actividades involucradas. Operativamente, todo proyecto se desenvuelve bajo restricciones críticas de tres órdenes: temporales (un plazo definido de inicio y fin), presupuestarias (recursos financieros limitados) y humanas (dotación de personal calificado).</p>
+<p>De acuerdo con el rol que cumple y el origen de la toma de decisiones, los proyectos se categorizan en dos grandes vertientes:</p>
+<ul>
+<li><strong>Proyecto Empresarial o Privado-Financiero</strong>: Su ejecución se fundamenta estrictamente en la existencia de una demanda con capacidad de pago efectiva, dispuesta a abonar el precio fijado para el bien o servicio. El fin rector de esta iniciativa es la obtención de rentabilidad económica y utilidades para los inversionistas privados.</li>
+<li><strong>Proyecto Social o Público</strong>: Su decisión final se adopta a partir de las necesidades insatisfechas de determinados grupos poblacionales, procurando su satisfacción por razones políticas, económicas, sociales o morales. El propósito central no radica en el lucro financiero, sino en el bienestar colectivo, siendo impulsado por el Estado o por organismos internacionales sin exigir obligatoriamente capacidad de pago a los beneficiarios.</li>
+</ul>
+<h3>El Ciclo Integral de Vida de un Proyecto</h3>
+<p>El avance metódico de un proyecto transcurre a través de cuatro fases consecutivas e interdependientes:</p>
+<ol>
+<li><strong>Fase de Preinversión</strong>: Corresponde a la etapa de formulación analítica donde se evalúa la conveniencia de asignar recursos antes de inmovilizar capital. Se divide internamente en cuatro niveles sucesivos de maduración:<ul>
+<li><em>Idea</em>: Identificación preliminar de una oportunidad de negocio, problema o necesidad colectiva.</li>
+<li><em>Perfil del Proyecto</em>: Incorporación de ideas básicas, estimaciones globales de costos y beneficios, culminando en una conclusión "en principio" sobre la viabilidad de proseguir con los estudios.</li>
+<li><em>Estudio de Prefactibilidad</em>: Análisis que profundiza en alternativas técnicas y comerciales utilizando información cuantitativa y antecedentes existentes, considerando los datos actuales como constantes para proyecciones iniciales.</li>
+<li><em>Estudio Definitivo o Factibilidad</em>: Evaluación rigurosa basada en información primaria demostrada, diseños de ingeniería finales y contratos preliminares que fundamentan la decisión final de inversión.</li>
+</ul>
+</li>
+<li><strong>Fase de Inversión (o Ejecución)</strong>: Materialización física y financiera del proyecto mediante la adquisición de activos fijos, contratación de obras, montaje de infraestructura y capacitación del personal operativo.</li>
+<li><strong>Fase de Operación</strong>: Puesta en marcha regular donde los recursos productivos se articulan para elaborar los bienes o prestar los servicios de forma continua durante la vida útil proyectada.</li>
+<li><strong>Fase de Evaluación</strong>: Instancia de control de gestión destinada a cotejar los resultados reales obtenidos con las proyecciones iniciales del flujo de fondos, permitiendo aplicar ajustes y medidas correctivas que garanticen la rentabilidad y sostenibilidad del emprendimiento.</li>
+</ol>
+<h3>Planificación y Herramientas Operativas</h3>
+<p>La planificación constituye la acción sistemática de decidir con anticipación qué hacer, cómo hacerlo, cuándo y quién debe ejecutar cada tarea. Su propósito central es reducir la incertidumbre, mitigar el impacto de los cambios del entorno, evitar la duplicación o superposición de actividades, brindar orientación directiva y asegurar el éxito futuro.</p>
+<p>Dentro de este marco, el <strong>Diagrama de Gantt</strong> es la herramienta gráfica fundamental para la gestión temporal de proyectos. Representa el trabajo previsto a lo largo de un período determinado, permitiendo visualizar la fecha de inicio y finalización de cada tarea, la asignación de responsables, las dependencias lógicas entre actividades y los hitos clave. Para su implementación digital, la cátedra destaca soluciones especializadas como <em>GanttProject</em> y plataformas de gestión colaborativa de flujos de trabajo como <em>Trello</em>.</p>
+<p>Asimismo, para la nomenclatura oficial y formulación estructurada de iniciativas, se enfatiza el empleo de verbos de acción correspondientes a procesos específicos (como Sistematización, Reestructuración, Recuperación, Saneamiento, Sustitución o Renovación) y estudios básicos (Diagnóstico, Inventario, Censo o Catastro), en concordancia con marcos normativos de transparencia como la Ley Nº 5282/14 de Libre Acceso Ciudadano a la Información Pública.</p>
+<hr />
+<h2>2. Estudio de Mercado: Dinámica Económica y los Cinco Submercados (Clase 4)</h2>
+<h3>El Mercado como Primer Filtro de Viabilidad</h3>
+<p>El estudio de mercado constituye el primer filtro indispensable para evaluar cualquier iniciativa productiva. Su cometido esencial es revelar las necesidades insatisfechas, dimensionar el potencial de la demanda y verificar la capacidad operativa de satisfacerla. Económicamente, el mercado se concibe como el espacio donde confluyen compradores y vendedores para transar bienes o servicios, articulando variables de tiempo, lugar, oferta, demanda y precio.</p>
+<h3>Interacción entre Demanda, Oferta y Formación de Precios</h3>
+<p>El análisis microeconómico del proyecto descansa sobre el equilibrio dinámico de sus fuerzas constitutivas:</p>
+<ul>
+<li><strong>La Demanda</strong>: Expresa la cantidad de bienes o servicios que los consumidores desean y pueden adquirir a diferentes niveles de precios. La disposición de compra está fuertemente condicionada por la previa satisfacción de las necesidades básicas insatisfechas (NBI: alimentación, salud, vestimenta y vivienda). Una vez cubiertas estas prioridades esenciales, el ingreso residual se canaliza hacia bienes de carácter secundario o discrecional.</li>
+<li><strong>La Oferta</strong>: Representa el volumen de bienes que los productores colocan a disposición del mercado a un precio determinado. Su comportamiento responde a las expectativas económicas, los costos de producción fabril, el nivel tecnológico adoptado y el grado de competencia sectorial. Según las particularidades del bien, la empresa actúa como <em>creadora de precio</em> (si posee un producto diferenciado o ventaja monopólica) o como <em>tomadora de precio</em> (si el bien es genérico o compite en mercados perfectamente concurridos).</li>
+<li><strong>Precio y Cantidad de Equilibrio</strong>: El precio refleja la valoración acordada entre oferentes y demandantes para despojarse y apropiarse del bien, respectivamente. El punto de equilibrio determina la cantidad exacta que el mercado absorberá; cualquier producción por encima de dicha cifra satura el mercado y erosiona los precios.</li>
+</ul>
+<h3>Los Cinco Submercados del Proyecto</h3>
+<p>Al entrar en operación un proyecto, interactúa simultáneamente con cinco submercados cuya comprensión integral define el modelo de negocio:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Submercado</th>
+<th style="text-align: left;">Incidencia Directa en el Proyecto</th>
+<th style="text-align: left;">Aspectos Clave a Evaluar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Proveedor</strong></td>
+<td style="text-align: left;">Incide directamente en la estructura de costos y abastecimiento continuo.</td>
+<td style="text-align: left;">Precios de insumos, plazos de entrega, condiciones de pago, calidad, asistencia técnica y repuestos de maquinarias.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Competidor</strong></td>
+<td style="text-align: left;">Condiciona la estrategia de vinculación entre el producto y los consumidores.</td>
+<td style="text-align: left;">Puntos fuertes (para respetarlos e imitarlos) y débiles o "talón de Aquiles" (para capturar clientela), políticas de crédito, apariencia y métodos de venta.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Distribuidor</strong></td>
+<td style="text-align: left;">Dictamina los requisitos logísticos y el alcance territorial de la cobertura.</td>
+<td style="text-align: left;">Costos de intermediación, transporte, capacidad de almacenamiento y penetración de canales comerciales.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Consumidor</strong></td>
+<td style="text-align: left;">Determina el nivel de aceptación, penetración y volumen total de ingresos.</td>
+<td style="text-align: left;">Hábitos de compra, motivos de elección, perfiles de clientes corporativos (B2B) versus consumidor final masivo (B2C).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Externo</strong></td>
+<td style="text-align: left;">Introduce variables macroeconómicas y tecnológicas ajenas al control directo.</td>
+<td style="text-align: left;">Integración comunicacional global, tipo de cambio, comercio digital, políticas aduaneras y competitividad internacional.</td>
+</tr>
+</tbody>
+</table>
+<h3>Estrategias Competitivas</h3>
+<p>Para capturar valor en mercados disputados, el estudio de mercado distingue dos estrategias genéricas:</p>
+<ul>
+<li><strong>Diferenciación</strong>: Se aplica en mercados maduros donde la oferta tecnológica es homogénea entre rivales. Consiste en dotar al producto o servicio de atributos distintivos apreciados por el consumidor (calidad superior, diseño, atención, asesoramiento especializado), logrando que perciba un valor superior y justifique un precio premium.</li>
+<li><strong>Enfoque (o Alta Especialización)</strong>: Radica en identificar y atender un nicho o porción desatendida del mercado, apostando a la innovación y a la satisfacción exacta de necesidades específicas antes que a las economías de escala masivas.</li>
+</ul>
+<hr />
+<h2>3. Demografía, Perfil del Consumidor y Viabilidad Comercial (Clase 5)</h2>
+<h3>La Estructura Sociodemográfica como Predictor del Mercado</h3>
+<p>El comportamiento del consumidor no opera en el vacío; está condicionado por la matriz sociodemográfica del área de influencia. Un estudio de mercado profesional debe fundamentar sus proyecciones sobre herramientas demográficas precisas, destacándose la <strong>Pirámide de Población</strong> como instrumento visual y operativo para analizar la composición por sexo y rangos etarios.</p>
+<p>El análisis etario establece segmentaciones estructurales con implicancias económicas directas:</p>
+<ul>
+<li><strong>Población Joven (&lt; 15 años)</strong>: Genera patrones de consumo dependientes y demanda en rubros escolares, recreativos y de salud pediátrica.</li>
+<li><strong>Población Adulta (15 a 64 años)</strong>: Constituye el núcleo productivo y reproductivo. Alberga a la <strong>Población Económicamente Activa (PEA)</strong>, responsable de generar ingresos y participar del mercado laboral, así como a las <strong>Mujeres en Edad Fértil (MEF)</strong>, factor determinante en las tasas de natalidad y fecundidad que definen el crecimiento vegetativo futuro del mercado.</li>
+<li><strong>Población Envejecida (&gt; 65 años)</strong>: Orienta la demanda hacia servicios médicos especializados, cuidados asistenciales, esparcimiento pasivo y regímenes previsionales.</li>
+</ul>
+<h3>Indicadores de Pobreza y Nivel Socioeconómico</h3>
+<p>La capacidad adquisitiva de la demanda se vincula estrictamente con el nivel de ingresos y la ocupación laboral. En contextos de formulación de proyectos, la medición de las <strong>Necesidades Básicas Insatisfechas (NBI)</strong> es un indicador esencial: se cataloga en esta condición a los hogares que presentan al menos una carencia crítica en calidad de vivienda, hacinamiento, acceso a servicios sanitarios básicos o asistencia escolar. Mientras que el proyecto privado analiza el NBI para dimensionar el ingreso disponible residual, el proyecto social se enfoca en estas brechas para estimar la población carenciada prioritaria.</p>
+<h3>Atributos Comerciales y Comercio Electrónico</h3>
+<p>La competitividad del bien trasciende su funcionalidad técnica intrínseca. El aspecto exterior del producto influye decisivamente en el acto de compra:
+*   En <strong>bienes físicos</strong>, exige un cuidado riguroso del empaque, presentación e imagen.
+*   En <strong>servicios</strong>, la ventaja competitiva descansa en la pulcritud operativa y la excelencia en el trato directo.
+*   En <strong>obras públicas</strong>, se refleja en la ornamentación, integración paisajística y obras complementarias de seguridad y comodidad.</p>
+<p>Asimismo, la transformación digital y el comercio electrónico (<em>e-commerce</em>) han reconfigurado los canales de comercialización. En Paraguay, los datos institucionales (como los registros de Bancard durante la aceleración del comercio electrónico) evidenciaron incrementos interanuales masivos en transacciones (+93%) y volumen de facturación (+72%), con crecimientos exponenciales en sectores estratégicos como farmacias (+644%), electrodomésticos (+210%) y supermercados (+172%), contrastando con caídas drásticas en aerolíneas (-43%).</p>
+<h3>El Dictamen del Estudio de Mercado</h3>
+<p>Las conclusiones del estudio de mercado deben sintetizar de forma categórica: los aspectos favorables y desfavorables, los riesgos comerciales latentes, la magnitud del mercado potencial y, finalmente, emitir una decisión operativa fundada: <strong>seguir o no seguir con el proyecto</strong> (<em>Go / No-Go</em>).</p>
+<hr />
+<h2>4. Estudio Técnico: Operatividad, Localización y Diseño de Procesos (Clase 6)</h2>
+<h3>Objeto y Alcance del Estudio Técnico</h3>
+<p>Una vez comprobada la existencia de mercado suficiente, el Estudio Técnico se encarga de determinar la factibilidad operativa y física del emprendimiento. Su propósito fundamental es responder a cinco interrogantes esenciales:</p>
+<blockquote>
+<p><strong>Interrogantes del Estudio Técnico:</strong>
+*   <strong>¿Dónde producir?</strong> (Localización física del proyecto).
+*   <strong>¿Cuánto producir?</strong> (Tamaño y capacidad instalada de planta o servicio).
+*   <strong>¿Cuándo producir?</strong> (Secuencia temporal y cronograma operativo).
+*   <strong>¿Cómo producir?</strong> (Ingeniería de procesos y tecnología adoptada).
+*   <strong>¿Con qué producir?</strong> (Recursos humanos, insumos, maquinarias y equipamiento).</p>
+</blockquote>
+<p>El estudio técnico establece el costo fabril y operativo del proyecto, garantizando que el diseño mantenga claridad y sencillez para evitar caer en niveles innecesarios de microdetalle que encarezcan la formulación.</p>
+<h3>Determinación de Costos Fabriles e Inversiones en Activos</h3>
+<p>Los costos operativos del proyecto se derivan directamente del diseño del proceso técnico. Sus componentes más relevantes comprenden:
+*   Consumo de materias primas e insumos directos.
+*   Utilización de mano de obra (operaria, técnica y de supervisión).
+*   Programas de mantenimiento correctivo y preventivo de instalaciones.
+*   Gastos fabriles generales (energía eléctrica, combustibles, agua industrial).</p>
+<p>En paralelo, se determinan las necesidades de <strong>Activo Fijo</strong>, conceptualizados como aquellos bienes tangibles de carácter duradero que no varían ni se consumen durante el ciclo ordinario de explotación o año fiscal (terrenos, construcciones edilicias, maquinarias, muebles, vehículos y equipos computacionales). La combinación de tecnología adecuada y capacitación continua de la mano de obra constituye la variable determinante para elevar la productividad del capital invertido.</p>
+<h3>Proceso Metodológico de Localización</h3>
+<p>La elección del emplazamiento espacial óptimo se ejecuta en dos etapas sucesivas:</p>
+<ol>
+<li><strong>Macrolocalización</strong>: Selección de la gran región geográfica o macrozona (país, departamento, cuenca o distrito) basada en factores económicos generales, políticas impositivas regionales y proximidad a corredores de desarrollo.</li>
+<li><strong>Microlocalización</strong>: Elección precisa del predio, terreno o inmueble dentro de la macrozona seleccionada que ofrezca las mayores ventajas comparativas.</li>
+</ol>
+<p>Los factores de evaluación determinantes para ambas escalas incluyen: costos y accesibilidad del transporte, cercanía a las fuentes de abastecimiento de materias primas, proximidad a los mercados de consumo, condiciones climáticas locales, topografía y mecánica de suelos, disponibilidad y confiabilidad de servicios básicos (agua potable, energía eléctrica de potencia, internet, saneamiento), marco regulatorio ambiental y normativas municipales.</p>
+<h3>Ingeniería y Diagramación de Procesos</h3>
+<p>Para diseñar el proceso productivo con rigurosidad técnica, se establece un procedimiento de cinco etapas:
+1.  Identificar los procesos operativos esenciales a ser definidos.
+2.  Listar la totalidad de clientes y proveedores involucrados.
+3.  Enlazar la producción a las características de los clientes mediante tormentas de ideas sobre sus requerimientos de calidad.
+4.  Identificar los insumos requeridos y vincularlos a los proveedores idóneos.
+5.  Definir los controles operativos, regulaciones ambientales e impositivas aplicables.</p>
+<p>En la gestión temporal de estas actividades, el Diagrama de Gantt actúa como la herramienta de monitoreo indispensable para articular la sucesión de eventos críticos (plazos de factibilidad, adquisiciones de maquinaria, obras civiles y montaje técnico), evitando desviaciones que comprometan la puntualidad y viabilidad financiera del proyecto.</p>
+<hr />
+<h2>5. Estructura Empresarial, Clasificación MIPYMES y Metodología Social (Clase 7)</h2>
+<h3>Concepto y Finalidad de la Empresa</h3>
+<p>En el marco de la cátedra, una <strong>empresa</strong> se define doctrinariamente como:</p>
+<blockquote>
+<p><em>"Un conjunto de personas que armonizan capital y trabajo en la búsqueda de ganancias, al servicio propio y de la comunidad en que se desarrolla."</em></p>
+</blockquote>
+<p>La obtención de utilidades o ganancias constituye una condición ineludible para la supervivencia económica del negocio. No obstante, en la medida en que interactúa con su contexto, la empresa cumple fines sociales indispensables: crea fuentes de trabajo, distribuye remuneraciones, dinamiza la cadena de pagos a proveedores, contribuye al erario público mediante el pago de tributos y multiplica la actividad económica territorial. Para ello, es indispensable mantener la <strong>armonía</strong> (acuerdo, cooperación y paz) entre los aportantes de capital y los ejecutores del trabajo.</p>
+<h3>Tipología de Empresas por Actividad Económica</h3>
+<p>En función a su actividad central, las unidades económicas se clasifican en:</p>
+<ul>
+<li><strong>Empresas Industriales</strong>: Transforman materias primas y bienes intermedios, manual o mecánicamente, para elaborar productos manufacturados (fábricas de muebles, confecciones textiles, plantas de calzados o industrias electrónicas).</li>
+<li><strong>Empresas Comerciales</strong>: No transforman bienes; se dedican a la compraventa y distribución de mercaderías directamente al consumidor final (minoristas) o compran a gran escala a fabricantes para revender a otros comercios (mayoristas), tales como supermercados, farmacias y ferreterías.</li>
+<li><strong>Empresas de Servicios</strong>: No entregan mercadería física; su objeto consiste en la provisión directa de su propio trabajo técnico, intelectual o manual a favor del cliente (servicios de computación, desarrollo de software, transporte, educación, salud y consultoría).</li>
+</ul>
+<h3>Categorización Oficial de MIPYMES en Paraguay (Marco Normativo Vigente: Decreto Nº 4535 y Ley Nº 7444)</h3>
+<p>El ordenamiento nacional paraguayo establece criterios normativos formales y vinculantes para clasificar a las micro, pequeñas y medianas empresas. Conforme a la <strong>Ley Nº 7444</strong> (que modificó y amplió la Ley Nº 4457/12) y su decreto reglamentario vigente, el <strong>Decreto Nº 4535</strong> (Artículo 5º - Categorías), los parámetros de categorización oficial registrados ante el Viceministerio de MIPYMES del MIC combinan límites de facturación bruta anual del ejercicio fiscal anterior y dotación de personal:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Categoría MIPYME</th>
+<th style="text-align: left;">Cantidad de Trabajadores</th>
+<th style="text-align: left;">Facturación Bruta Anual Máxima (Decreto Nº 4535)</th>
+<th style="text-align: left;">Base Histórica Derogada (Ley 4457 / Dec. 3698/20)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Microempresa (MIE)</strong></td>
+<td style="text-align: left;">Hasta 10 trabajadores (incluye familiares y propietario)</td>
+<td style="text-align: left;"><strong>Hasta ₲ 1.000.000.000</strong> (Mil millones de guaraníes)</td>
+<td style="text-align: left;">Base 500M / Dec. 646M</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Pequeña Empresa (PE)</strong> ⭐</td>
+<td style="text-align: left;">De 11 a 30 trabajadores</td>
+<td style="text-align: left;"><strong>Hasta ₲ 5.000.000.000</strong> (Cinco mil millones de guaraníes)</td>
+<td style="text-align: left;">Base 2.500M / Dec. 3.230M</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Mediana Empresa (ME)</strong></td>
+<td style="text-align: left;">De 31 a 50 trabajadores</td>
+<td style="text-align: left;"><strong>Hasta ₲ 10.000.000.000</strong> (Diez mil millones de guaraníes)</td>
+<td style="text-align: left;">Base 6.000M / Dec. 7.752M</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Preeminencia de la Facturación</strong>: En caso de disconformidad o duda respecto al número de trabajadores, el Artículo 6º del Decreto Nº 4535 estipula que prevalecerá de manera decisiva el indicador de facturación bruta anual declarada ante la Dirección Nacional de Ingresos Tributarios (DNIT).</li>
+<li><strong>Empresas Nuevas</strong>: Aquellas unidades recién constituidas que no cuenten con historial del año anterior se categorizan según el valor de su activo patrimonial declarado en el balance de apertura.</li>
+</ul>
+<h3>Articulación Jerárquica: Política, Plan, Programa y Proyecto</h3>
+<p>La intervención sobre la realidad socioeconómica requiere coordinar cuatro niveles jerárquicos de planificación:</p>
+<ul>
+<li><strong>Política Social</strong>: Constituye el nivel macro institucional y directivo; establece las directrices ideológicas, filosóficas y prioritarias del Estado.</li>
+<li><strong>Plan Social</strong>: Nivel estratégico global. Conjunto articulado de disposiciones, metas y recursos orientados al desarrollo de un país o región en un horizonte temporal definido. Es el conjunto integral de disposiciones y programas orientados a que la economía de un país o región alcance sus metas de crecimiento y desarrollo en un horizonte temporal determinado. Define los problemas prioritarios y los límites de intervención.</li>
+<li><strong>Programa Social</strong>: Nivel intermedio constituido por un conjunto coordinado de proyectos que persiguen los mismos objetivos, pudiendo diferenciarse por operar en distintas poblaciones o mediante diferentes estrategias.</li>
+<li><strong>Proyecto Social</strong>: Constituye la parte más pequeña del plan y la <strong>unidad mínima de asignación de recursos</strong> que puede formularse, evaluarse y efectuarse de manera autónoma como una unidad independiente para transformar una parcela de la realidad.</li>
+</ul>
+<p>Un proyecto social debe cumplir condiciones insoslayables: definir cuantitativamente el <strong>problema social</strong> (entendido como una carencia, déficit o brecha entre lo deseado por la sociedad y la realidad empíricamente observable), fijar objetivos de impacto mensurables, delimitar con precisión la <strong>población objetivo</strong> (subconjunto de la población de referencia que, padeciendo la carencia, no puede resolverla autónomamente mediante el mercado), indicar la localización geográfica exacta y estipular plazos formales de inicio y culminación.</p>
+<hr />
+<h2>6. Estudio Económico y Financiero: Flujo de Caja y Evaluación por VAN y TIR (Clase 10)</h2>
+<h3>Objetivo y Estructura del Flujo de Caja</h3>
+<p>El Estudio Económico y Financiero representa la instancia culminante de la formulación de proyectos. Tras validar que existe demanda de mercado y viabilidad técnica, se encarga de determinar la rentabilidad del capital a invertir y la estructura de financiamiento adecuada.</p>
+<p>El instrumento analítico por excelencia es el <strong>Flujo de Caja Proyectado (Cash Flow)</strong>, el cual mapea la distribución cronológica de ingresos y egresos de fondos a lo largo del horizonte de evaluación. En cuanto a su nivel de detalle temporal, la cátedra establece que el primer año de vida del proyecto debe planificarse preferentemente de forma mensualizada, mientras que para los años posteriores basta con consolidar los flujos en períodos anuales.</p>
+<p>La estructura analítica del flujo de caja proyectado contempla cuatro componentes esenciales:
+1.  <strong>Ingresos Operativos</strong>: Entradas efectivas de dinero generadas principalmente por la facturación por ventas de bienes o servicios, complementadas por eventuales ingresos residuales o valores de salvamento.
+2.  <strong>Costos y Gastos Operativos</strong>: Egresos continuos por insumos, mano de obra, mantenimiento, administración y comercialización.
+3.  <strong>Depreciación y Escudo Fiscal</strong>: La depreciación de activos fijos representa un costo no desembolsable (no genera salida real de efectivo). Se deduce de los ingresos antes de calcular la utilidad neta con el único propósito de reducir la base imponible y pagar menos impuesto a la renta (generando un <strong>escudo fiscal</strong>). Posteriormente, dicho monto se vuelve a sumar íntegramente al saldo contable para obtener el flujo de efectivo real disponible.
+4.  <strong>Inversiones de Capital y Saldo Neto de Caja</strong>: Desembolsos iniciales y reinversiones en activos fijos y capital de trabajo, arrojando el Flujo Neto de Efectivo ($) que servirá como base para la actualización financiera.</p>
+<h3>Valor Actual Neto (VAN): Fundamento Matemático y Criterios de Decisión</h3>
+<p>El cálculo del <strong>Valor Actual Neto (VAN)</strong> responde a la necesidad de equiparar valores monetarios futuros a su poder adquisitivo en el presente, considerando el costo de oportunidad del capital y la depreciación del valor del dinero en el tiempo. La mera suma nominal de los saldos futuros arroja un resultado engañoso porque ignora la tasa de rendimiento que el inversor podría obtener en alternativas de riesgo comparable.</p>
+<p>El indicador mide el beneficio económico adicional que genera el proyecto por encima de la tasa de descuento exigida, devolviendo una cifra monetaria concreta. Matemáticamente se expresa a través de la fórmula:</p>
+<p>$$\text{VAN} = \text{BNA} - I_0 = \sum_{t=1}^{n} \frac{V_t}{(1 + k)^t} - I_0$$</p>
+<p>Donde:
+*   $V_t$: Flujo de caja neto proyectado correspondiente a cada período $t$.
+*   $I_0$: Desembolso o inversión inicial en el período cero.
+*   $k$: Tipo de interés o tasa de descuento ($TD$), representativa de la tasa de rentabilidad mínima exigida al capital.
+*   $n$: Número total de períodos considerados en el horizonte del proyecto.
+*   $\text{BNA}$: Beneficio Neto Actualizado, suma de los flujos de caja traídos al presente.</p>
+<p>Los criterios de decisión financiera basados en el VAN son concluyentes:</p>
+<ul>
+<li><strong>$\text{VAN} &gt; 0$</strong>: El proyecto es <strong>rentable y viable</strong>. Cubre la inversión inicial, remunera el capital a la tasa de descuento exigida y genera un excedente de riqueza monetaria para el inversionista.</li>
+<li><strong>$\text{VAN} = 0$</strong>: La inversión se encuentra en punto de equilibrio financiero. No genera pérdidas ni ganancias adicionales a la tasa mínima esperada; la decisión de ejecución es indiferente.</li>
+<li><strong>$\text{VAN} &lt; 0$</strong>: El proyecto <strong>no es rentable</strong>. No logra recuperar la inversión inicial bajo la tasa de descuento considerada; debe rechazarse.</li>
+<li><strong>Selección entre alternativas mutuamente excluyentes</strong>: Ante proyectos viables con $\text{VAN} &gt; 0$, la regla de decisión óptima manda seleccionar aquel que exhiba el <strong>mayor VAN positivo</strong>, ya que aporta la máxima ganancia incremental.</li>
+</ul>
+<h3>Tasa Interna de Retorno (TIR)</h3>
+<p>En complemento al VAN, la <strong>Tasa Interna de Retorno (TIR)</strong> mide el rendimiento porcentual intrínseco de una inversión a lo largo del tiempo. Mientras el VAN arroja un monto en moneda corriente, la TIR expresa la tasa de interés a la cual el Valor Actual Neto se iguala exactamente a cero. Un proyecto se declara viable cuando su TIR supera la tasa de descuento de mercado o el costo de capital de los fondos.</p>
+<h3>Matriz Metodológica de Formulación de Proyectos</h3>
+<p>Como síntesis integradora de la preparación de proyectos, se utiliza la matriz de diez preguntas operativas que guían todo el proceso de formulación:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Pregunta Clave</th>
+<th style="text-align: left;">Dimensión que Resuelve</th>
+<th style="text-align: left;">Elemento Documental del Proyecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>¿QUÉ?</strong></td>
+<td style="text-align: left;">Se quiere hacer</td>
+<td style="text-align: left;">Descripción concisa del bien, servicio o intervención del proyecto.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿POR QUÉ?</strong></td>
+<td style="text-align: left;">Se quiere hacer</td>
+<td style="text-align: left;">Fundamentación o justificación, razón de ser, origen y problemática de partida.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿PARA QUÉ?</strong></td>
+<td style="text-align: left;">Se quiere hacer</td>
+<td style="text-align: left;">Objetivos generales y específicos, propósitos esperados.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿CUÁNTO?</strong></td>
+<td style="text-align: left;">Se quiere hacer</td>
+<td style="text-align: left;">Metas cuantificadas y ponderadas en el tiempo.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿DÓNDE?</strong></td>
+<td style="text-align: left;">Se quiere hacer</td>
+<td style="text-align: left;">Localización física precisa y ubicación en el espacio geográfico.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿CÓMO?</strong></td>
+<td style="text-align: left;">Se va a hacer</td>
+<td style="text-align: left;">Actividades, tareas, ingeniería de procesos, métodos y técnicas.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿CUÁNDO?</strong></td>
+<td style="text-align: left;">Se va a hacer</td>
+<td style="text-align: left;">Cronograma y distribución temporal (Diagrama de Gantt).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿A QUIÉNES?</strong></td>
+<td style="text-align: left;">Va dirigido</td>
+<td style="text-align: left;">Destinatarios, beneficiarios directos o segmento de clientes meta.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿QUIÉNES?</strong></td>
+<td style="text-align: left;">Lo van a hacer</td>
+<td style="text-align: left;">Estructura organizativa y recursos humanos asignados.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>¿CON QUÉ?</strong></td>
+<td style="text-align: left;">Se va a hacer / costear</td>
+<td style="text-align: left;">Recursos materiales, presupuesto financiero y fuentes de financiamiento.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>7. Cuestionario de Autoevaluación Práctica (10 Preguntas de Examen)</h2>
+<ol>
+<li><strong>Diferencia de roles</strong>: ¿Cuál es el criterio distintivo fundamental entre un proyecto de inversión de carácter empresarial-privado y uno de carácter social-público?</li>
+<li><strong>Etapas de la preinversión</strong>: Enumere ordenadamente las cuatro etapas constitutivas de la fase de preinversión e indique en cuál de ellas se asumen los datos vigentes como constantes a futuro.</li>
+<li><strong>Herramientas de planificación</strong>: Defina qué es un Diagrama de Gantt y nombre dos aplicaciones o plataformas informáticas citadas en el material para la administración de proyectos.</li>
+<li><strong>Submercados de un proyecto</strong>: ¿Cuáles son los cinco submercados que entran en juego al formular un proyecto y cuál de ellos impacta de forma directa sobre la estructura de costos fabriles?</li>
+<li><strong>Demografía y mercado</strong>: Dentro de una pirámide de población, ¿qué franja etaria representa la intersección o solapamiento entre la Población Económicamente Activa (PEA) y las Mujeres en Edad Fértil (MEF)?</li>
+<li><strong>Estrategias competitivas</strong>: ¿En qué circunstancias de madurez del mercado se recomienda implementar una estrategia de diferenciación y qué busca inducir en el consumidor?</li>
+<li><strong>Interrogantes del Estudio Técnico</strong>: Detalle las cinco preguntas básicas que debe resolver el estudio técnico de un proyecto de inversión.</li>
+<li><strong>Clasificación MIPYMES</strong>: Conforme al marco normativo vigente en Paraguay (Decreto Nº 4535 y Ley Nº 7444), ¿cuáles son los límites máximos de facturación en guaraníes y de cantidad de empleados para clasificar a una empresa como Pequeña Empresa (PE)?</li>
+<li><strong>Jerarquía de planificación social</strong>: Explique la diferencia estructural entre una Política Social, un Programa Social y un Proyecto Social.</li>
+<li><strong>Cálculo financiero del VAN</strong>: Un proyecto contempla una inversión inicial de $I_0 = 12.000$ dólares/unidades monetarias y una tasa de descuento del $14\%$ anual ($k = 0,14$). Si genera flujos netos constantes de $4.000$ anuales durante los años 1 al 4, y un flujo de $5.000$ en el año 5, plantee la ecuación del Beneficio Neto Actualizado (BNA), determine el resultado del VAN e interprete si el proyecto es viable.</li>
+</ol>
+<hr />
+<h2>8. Clave de Respuestas y Justificación Técnica</h2>
+<h3>Respuesta 1</h3>
+<p>El criterio distintivo radica en el origen de la decisión y la exigencia de capacidad de pago. El proyecto <strong>empresarial o privado</strong> se ejecuta exclusivamente si existe una demanda con capacidad de pago efectiva dispuesta a abonar el precio del bien o servicio para generar lucro o rentabilidad financiera. Por el contrario, el proyecto <strong>social o público</strong> se fundamenta en la existencia de necesidades colectivas de ciertos grupos poblacionales insatisfechas, procurándose su satisfacción por razones éticas, políticas o sociales a través del Estado u organismos internacionales, con independencia de que los beneficiarios posean o no capacidad económica de pago.</p>
+<h3>Respuesta 2</h3>
+<p>Las cuatro etapas de la fase de preinversión son:
+1.  Idea.
+2.  Perfil de un proyecto.
+3.  Estudio de prefactibilidad.
+4.  Estudio definitivo (o factibilidad).</p>
+<p>La etapa donde se utilizan los datos cuantitativos vigentes como constantes a futuro para proyectar la demanda es el <strong>Estudio de Prefactibilidad</strong>.</p>
+<h3>Respuesta 3</h3>
+<p>Un <strong>Diagrama de Gantt</strong> es una herramienta gráfica de gestión temporal que ilustra la dedicación prevista para diversas actividades o tareas en relación con el tiempo total presupuestado, permitiendo visualizar fechas de inicio y finalización, hitos, asignación de responsables y dependencias lógicas. Dos aplicaciones citadas en el material son <strong>GanttProject</strong> y <strong>Trello</strong>.</p>
+<h3>Respuesta 4</h3>
+<p>Los cinco submercados son:
+1.  Mercado Proveedor.
+2.  Mercado Competidor.
+3.  Mercado Distribuidor.
+4.  Mercado Consumidor.
+5.  Mercado Externo.</p>
+<p>El submercado que incide de manera directa sobre la estructura de costos fabriles y de abastecimiento del proyecto es el <strong>Mercado Proveedor</strong>.</p>
+<h3>Respuesta 5</h3>
+<p>La franja etaria correspondiente a la <strong>población adulta</strong>, comprendida entre los <strong>15 y los 64 años de edad</strong>, concentra simultáneamente al grueso de la Población Económicamente Activa (PEA) que dinamiza la producción y el mercado laboral, y al grupo de Mujeres en Edad Fértil (MEF) que incide directamente sobre las tasas de fecundidad y natalidad de la población.</p>
+<h3>Respuesta 6</h3>
+<p>La estrategia de <strong>diferenciación</strong> se aconseja cuando se compite con un producto que se encuentra en un ciclo de vida ya maduro y donde existe escasa diferenciación tecnológica intrínseca entre los competidores. Su objetivo primordial es inducir una apreciación subjetiva superior y un marcado valor percibido del consumidor hacia el producto sobre el resto de las ofertas del mercado.</p>
+<h3>Respuesta 7</h3>
+<p>Las cinco preguntas operativas que resuelve el estudio técnico son:
+1.  <strong>¿Dónde producir?</strong> (Localización en macro y microzona).
+2.  <strong>¿Cuánto producir?</strong> (Tamaño de planta y volumen de capacidad instalada).
+3.  <strong>¿Cuándo producir?</strong> (Cronograma y secuencia de eventos).
+4.  <strong>¿Cómo producir?</strong> (Procesos de ingeniería y tecnología aplicada).
+5.  <strong>¿Con qué producir?</strong> (Recursos humanos, activos fijos e insumos requeridos).</p>
+<h3>Respuesta 8</h3>
+<p>De acuerdo con el Decreto Nº 3698/2020 del Ministerio de Industria y Comercio de Paraguay, una <strong>Pequeña Empresa (PE)</strong> se caracteriza por:
+*   Facturación anual bruta: <strong>Hasta ₲ 3.230.227.453</strong>.
+*   Cantidad de personal: <strong>Hasta 30 empleados</strong>.</p>
+<h3>Respuesta 9</h3>
+<p>La diferencia radica en su alcance jerárquico y grado de agregación:
+*   La <strong>Política o Plan</strong> es el nivel rector macroeconómico o macrosocial; constituye el conjunto de disposiciones y programas destinados a alcanzar fines globales de crecimiento y desarrollo socioeconómico.
+*   El <strong>Programa</strong> es un conjunto coordinado de proyectos específicos que persiguen los mismos objetivos, pudiendo atender a poblaciones dispares o aplicar metodologías de intervención diferenciadas.
+*   El <strong>Proyecto</strong> es la unidad operativa más pequeña e independiente de asignación de recursos que, a través de actividades integradas, soluciona un problema concreto, disminuye un déficit social o explota una oportunidad.</p>
+<h3>Respuesta 10</h3>
+<p>Para calcular el Valor Actual Neto se aplica la relación $\text{VAN} = \text{BNA} - I_0$, actualizando cada flujo futuro a la tasa de descuento del $14\%$ ($k = 0,14$):</p>
+<p>$$\text{BNA} = \frac{4.000}{(1 + 0,14)^1} + \frac{4.000}{(1 + 0,14)^2} + \frac{4.000}{(1 + 0,14)^3} + \frac{4.000}{(1 + 0,14)^4} + \frac{5.000}{(1 + 0,14)^5}$$</p>
+<p>Desarrollando los términos actualizados del BNA:
+*   Año 1: $\frac{4.000}{1,14} \approx 3.508,77$
+*   Año 2: $\frac{4.000}{(1,14)^2} \approx 3.077,87$
+*   Año 3: $\frac{4.000}{(1,14)^3} \approx 2.699,89$
+*   Año 4: $\frac{4.000}{(1,14)^4} \approx 2.368,32$
+*   Año 5: $\frac{5.000}{(1,14)^5} \approx 2.596,84$</p>
+<p>Sumando los flujos descontados se obtiene el Beneficio Neto Actualizado:
+$$\text{BNA} \approx 14.251,69$$</p>
+<p>Restando el desembolso de la inversión inicial ($I_0 = 12.000$):
+$$\text{VAN} = 14.251,69 - 12.000 = 2.251,69$$</p>
+<p><strong>Interpretación</strong>: Dado que el $\text{VAN} &gt; 0$ ($\text{VAN} = 2.251,69$), el proyecto es <strong>plenamente rentable y viable</strong>, generando una ganancia económica neta adicional de $2.251,69$ unidades monetarias por encima de la rentabilidad mínima esperada del $14\%$.</p>
+<hr />
+<h2>9. Preguntas de Síntesis y Análisis Crítico para Examen Oral o Escrito</h2>
+<ol>
+<li><strong>Articulación Metodológica Inter-estudios</strong>: ¿De qué manera los hallazgos cuantitativos y cualitativos obtenidos en el Estudio de Mercado condicionan directamente las especificaciones de capacidad, equipamiento y localización del Estudio Técnico, y cómo se trasladan finalmente a los rubros de ingresos del Flujo de Caja en el Estudio Económico?</li>
+<li><strong>Riesgo e Ilusión Nominal en la Evaluación Financiera</strong>: Explique por qué en el caso práctico de inversión analizado en clase, donde la simple suma aritmética de utilidades nominales arrojaba una ganancia de $9.000$, fue técnicamente indispensable descontar los flujos mediante una tasa del $14\%$, y cuál es el impacto conceptual de la tasa de descuento sobre la decisión de inversión.</li>
+<li><strong>Localización Industrial frente a Localización de Servicios</strong>: Analice comparativamente los factores determinantes de macrolocalización y microlocalización para una planta industrial tradicional versus una empresa de base tecnológica orientada a servicios de software en el contexto departamental de Itapúa.</li>
+<li><strong>Armonía Social y Sobrevivencia Empresarial</strong>: Tomando la definición doctrinaria de empresa brindada por la cátedra, discuta cómo una firma comercial privada logra compatibilizar el imperativo de generar utilidades con su responsabilidad de servicio al entorno socioeconómico comunitario.</li>
+<li><strong>Frontera entre Proyecto Social y Oportunidad Comercial</strong>: En presencia de una comunidad con altos índices de Necesidades Básicas Insatisfechas (NBI), examine bajo qué condiciones dicha carencia debe ser atendida mediante un proyecto social público del Estado y cuándo puede ser transformada en un modelo de negocio privado sostenible.</li>
+</ol>
+<hr />
+<h2>10. Glosario Técnico Exhaustivo de Términos Clave</h2>
+<ul>
+<li><strong>Activo Fijo</strong>: Conjunto de bienes tangibles y duraderos adquiridos por la empresa (inmuebles, edificaciones, maquinarias, muebles) que no sufren variaciones ni se consumen durante el ciclo ordinario de explotación comercial o año fiscal.</li>
+<li><strong>Beneficio Neto Actualizado (BNA)</strong>: Valor presente equivalente de la sumatoria de todos los flujos de caja netos proyectados a lo largo del horizonte temporal del proyecto, descontados mediante la tasa de rentabilidad mínima exigida.</li>
+<li><strong>Cantidad de Equilibrio</strong>: Número de unidades físicas producidas y comercializadas en el cual coinciden las voluntades de compra de los consumidores con las expectativas de producción de los oferentes; rebasar esta cifra implica saturar el mercado.</li>
+<li><strong>Diagrama de Gantt</strong>: Representación gráfica cronológica de gestión de proyectos que vincula la duración temporal presupuestada con la carga de trabajo asignada a cada tarea o responsable, mostrando fechas críticas e interdependencias.</li>
+<li><strong>Empresa</strong>: Estructura institucional y humana que armoniza el capital financiero y material con el trabajo humano calificado para obtener utilidades, brindando un servicio a sus miembros y a la comunidad de inserción.</li>
+<li><strong>Empresas de Servicios</strong>: Entidades productivas cuya actividad no implica la entrega o manufactura de mercaderías materiales, sino la provisión directa de su propio esfuerzo y capacidades técnicas al cliente.</li>
+<li><strong>Estudio de Mercado</strong>: Análisis metódico y sistemático del comportamiento del lugar, tiempo, oferta, demanda y precios relativos a un bien o servicio para determinar la viabilidad comercial y la magnitud del mercado potencial.</li>
+<li><strong>Estudio Técnico</strong>: Fase del análisis de preinversión encargada de definir la operatividad física de la iniciativa mediante la respuesta estructurada a dónde, cuánto, cuándo, cómo y con qué se llevará a cabo la producción.</li>
+<li><strong>Flujo de Caja (Cash Flow)</strong>: Estado financiero proforma que registra cronológicamente las entradas efectivas (ingresos) y salidas reales de dinero (costos, gastos operativos e inversiones) durante un horizonte temporal predeterminado.</li>
+<li><strong>Macrolocalización</strong>: Selección de la zona geográfica general o macrozona más favorable para el emplazamiento de un proyecto, evaluada a escala regional o nacional.</li>
+<li><strong>Microlocalización</strong>: Identificación y elección del sitio específico o predio dentro de la macrozona seleccionada que proporciona las ventajas comparativas óptimas en servicios de apoyo, comunicaciones y logística.</li>
+<li><strong>Mujeres en Edad Fértil (MEF)</strong>: Subconjunto demográfico integrado prioritariamente por mujeres de 15 a 49 años dentro del segmento adulto, cuya proporción incide directamente sobre la fecundidad y la tasa de natalidad poblacional.</li>
+<li><strong>Necesidades Básicas Insatisfechas (NBI)</strong>: Indicador sociodemográfico que mide el nivel de pobreza estructural a través de la presencia de carencias críticas en el hogar (vivienda precaria, hacinamiento, falta de servicios sanitarios o inasistencia escolar).</li>
+<li><strong>Perfil del Proyecto</strong>: Etapa preliminar de la fase de preinversión donde se plasman las ideas básicas y estimaciones aproximadas de ingresos y egresos para emitir una recomendación preliminar de prosecución.</li>
+<li><strong>Pirámide de Población</strong>: Herramienta gráfica que plasma la distribución de los habitantes de un territorio por grupos etarios y sexos, sirviendo como insumo fundamental para proyectar la demanda de mercado.</li>
+<li><strong>Población Económicamente Activa (PEA)</strong>: Segmento poblacional en edad de trabajar (15 a 64 años) que aporta la mano de obra efectiva en la producción de bienes y prestación de servicios económicos.</li>
+<li><strong>Población Objetivo</strong>: Fracción específica de la población de referencia hacia la cual se dirigen concretamente los productos o beneficios del proyecto, por poseer carencias que no puede saldar de manera autónoma en el mercado.</li>
+<li><strong>Precio de Equilibrio</strong>: Nivel de cotización monetaria donde coinciden la oferta y la demanda, acordando el oferente en desprenderse del bien y el consumidor en adquirirlo a satisfacción recíproca.</li>
+<li><strong>Tasa de Descuento ($k$ o TD)</strong>: Tasa de interés representativa del costo de oportunidad del capital o rendimiento mínimo exigido por los inversionistas para actualizar los flujos de caja futuros a valores presentes.</li>
+<li><strong>Tasa Interna de Retorno (TIR)</strong>: Métrica porcentual que mide el rendimiento intrínseco de una inversión a lo largo del tiempo, representando la tasa de descuento que hace que el Valor Actual Neto sea exactamente igual a cero.</li>
+<li><strong>Valor Actual Neto (VAN)</strong>: Indicador financiero que expresa en moneda presente el valor adicional generado por un proyecto luego de descontar la totalidad de las inversiones iniciales mediante una tasa de descuento predeterminada.</li>
+</ul>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-semibold text-slate-200">Material de Estudio Didáctico para el 2do Parcial • Elaboración y Evaluación de Proyectos</p>
+            <p>Compilado y estructurado a partir de las fuentes oficiales de las 6 Clases Oficiales (3, 4, 5, 6, 7 y 10) con NotebookLM y herramientas interactivas Web.</p>
+            <p class="text-slate-500 pt-2">© 2026 • Modo Estudio Offline y Autónomo</p>
+        </div>
+    </footer>
+
+    <!-- LOGICA JAVASCRIPT CON GSAP, THREE.JS Y CHART.JS -->
+    <script>
+        // -------------------------------------------------------------
+        // 1. THREE.JS HERO BACKGROUND 3D (con control de animación y accesibilidad)
+        // -------------------------------------------------------------
+        function initThreeJS() {
+            const container = document.getElementById('three-canvas-container');
+            if (!container) return;
+
+            // Respetar preferencia de reducción de movimiento
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                return;
+            }
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 25;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const group = new THREE.Group();
+            scene.add(group);
+
+            const geometry = new THREE.IcosahedronGeometry(1.2, 0);
+            for (let i = 0; i < 35; i++) {
+                const material = new THREE.MeshBasicMaterial({
+                    color: i % 2 === 0 ? 0x0ea5e9 : 0x6366f1,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.25
+                });
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = (Math.random() - 0.5) * 50;
+                mesh.position.y = (Math.random() - 0.5) * 30;
+                mesh.position.z = (Math.random() - 0.5) * 20;
+                mesh.scale.setScalar(Math.random() * 1.5 + 0.5);
+                mesh.userData = {
+                    rotSpeedX: (Math.random() - 0.5) * 0.012,
+                    rotSpeedY: (Math.random() - 0.5) * 0.012
+                };
+                group.add(mesh);
+            }
+
+            let isVisible = true;
+            const observer = new IntersectionObserver(([entry]) => {
+                isVisible = entry.isIntersecting;
+            });
+            observer.observe(container);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                if (!isVisible) return;
+                group.children.forEach(mesh => {
+                    mesh.rotation.x += mesh.userData.rotSpeedX;
+                    mesh.rotation.y += mesh.userData.rotSpeedY;
+                });
+                group.rotation.y += 0.0008;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                if (!container) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+        initThreeJS();
+
+        // -------------------------------------------------------------
+        // 2. DATOS DE LOS 5 SUBMERCADOS
+        // -------------------------------------------------------------
+        const submercadosData = [
+            {
+                titulo: "1. Submercado Proveedor",
+                icono: "fa-solid fa-truck-ramp-box",
+                color: "text-amber-600 bg-amber-50 border-amber-200",
+                impacto: "Impacta directamente sobre la estructura de costos fabriles y la viabilidad técnica.",
+                puntos: [
+                    "<strong>Disponibilidad y Oportunidad:</strong> Abastecimiento continuo de materias primas sin demoras que paralicen la planta.",
+                    "<strong>Políticas de Crédito y Plazo:</strong> Si los proveedores exigen pago al contado y los clientes pagan a 60 días, se genera una brecha crítica en el capital de trabajo.",
+                    "<strong>Nivel de Dependencia:</strong> Existencia de proveedores monopólicos u oligopólicos que impongan incrementos arbitrarios de precios."
+                ],
+                preguntaClave: "¿A qué precio, con qué calidad y con qué plazos de entrega obtendremos los insumos para operar?"
+            },
+            {
+                titulo: "2. Submercado Competidor",
+                icono: "fa-solid fa-chess",
+                color: "text-blue-600 bg-blue-50 border-blue-200",
+                impacto: "Define la cuota de mercado alcanzable y los precios máximos viables.",
+                puntos: [
+                    "<strong>Competidores Directos:</strong> Empresas que comercializan exactamente el mismo producto o servicio.",
+                    "<strong>Competidores Indirectos (Sustitutos):</strong> Bienes distintos que satisfacen la misma necesidad fundamental del consumidor.",
+                    "<strong>Estrategias de Reacción:</strong> Posibilidad de guerra de precios o campañas agresivas ante el ingreso del nuevo proyecto al mercado."
+                ],
+                preguntaClave: "¿Cómo reaccionará la competencia actual y qué ventajas comparativas sostenibles ofrecemos?"
+            },
+            {
+                titulo: "3. Submercado Distribuidor",
+                icono: "fa-solid fa-route",
+                color: "text-emerald-600 bg-emerald-50 border-emerald-200",
+                impacto: "Condiciona el margen de rentabilidad y la logística física de entrega.",
+                puntos: [
+                    "<strong>Canales de Distribución:</strong> Venta directa (productor al cliente) vs. Mayoristas y Minoristas (cadena de intermediación).",
+                    "<strong>Márgenes de Intermediación:</strong> Porcentajes que retienen los canales (supermercados, distribuidores) reduciendo el ingreso neto percibido.",
+                    "<strong>Conservación y Cadena de Frío:</strong> Requerimientos de transporte y almacenamiento especializado para productos perecederos."
+                ],
+                preguntaClave: "¿Qué canales utilizaremos para que el producto llegue al cliente final en tiempo y forma?"
+            },
+            {
+                titulo: "4. Submercado Consumidor",
+                icono: "fa-solid fa-users",
+                color: "text-purple-600 bg-purple-50 border-purple-200",
+                impacto: "Constituye el núcleo determinante del proyecto empresarial privado.",
+                puntos: [
+                    "<strong>Capacidad de Pago Efectiva:</strong> No basta con el deseo de compra; debe existir poder adquisitivo real para pagar el precio fijado.",
+                    "<strong>Hábitos y Preferencias:</strong> Patrones culturales, frecuencia de compra, estacionalidad y lealtad a marcas consolidadas.",
+                    "<strong>Segmentación de Mercado:</strong> Geográfica (ciudad, clima), Demográfica (edad, género, ingresos) y Psicográfica (estilo de vida)."
+                ],
+                preguntaClave: "¿Quién compra, por qué razones compra, con qué frecuencia y cuánto dinero está dispuesto a pagar?"
+            },
+            {
+                titulo: "5. Submercado Externo",
+                icono: "fa-solid fa-earth-americas",
+                color: "text-rose-600 bg-rose-50 border-rose-200",
+                impacto: "Variables macroeconómicas internacionales fuera del control directo de la empresa.",
+                puntos: [
+                    "<strong>Tipo de Cambio y Divisas:</strong> Fluctuaciones del dólar que encarecen insumos importados o benefician a proyectos exportadores.",
+                    "<strong>Aranceles y Normativa Aduanera:</strong> Trabas no arancelarias, acuerdos de integración regional (MERCOSUR) y barreras fitosanitarias.",
+                    "<strong>Tendencias Globales:</strong> Cambios tecnológicos mundiales y precios internacionales de materias primas (commodities)."
+                ],
+                preguntaClave: "¿Cómo afectan las políticas cambiarias, el comercio internacional y las regulaciones aduaneras?"
+            }
+        ];
+
+        function renderSubmercado(index) {
+            const data = submercadosData[index];
+            const container = document.getElementById('submercado-detalle');
+            let puntosHtml = data.puntos.map(p => `<li class="flex items-start"><i class="fa-solid fa-check text-brand-600 mr-2 mt-1 text-xs flex-shrink-0"></i><span>${p}</span></li>`).join('');
+
+            container.innerHTML = `
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${data.color} shadow-sm flex-shrink-0">
+                        <i class="${data.icono}"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900">${data.titulo}</h3>
+                        <p class="text-xs font-semibold text-slate-500">${data.impacto}</p>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs sm:text-sm text-slate-700">
+                    <ul class="space-y-2.5">
+                        ${puntosHtml}
+                    </ul>
+                    <div class="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm text-xs font-semibold text-slate-800">
+                        <i class="fa-solid fa-quote-left text-brand-500 mr-1.5"></i>Interrogante central: <em>${data.preguntaClave}</em>
+                    </div>
+                </div>
+            `;
+        }
+
+        function seleccionarSubmercado(index) {
+            document.querySelectorAll('.submercado-btn').forEach((btn, i) => {
+                if (i === index) {
+                    btn.className = 'submercado-btn p-4 rounded-2xl border-2 border-brand-500 bg-brand-50 text-brand-900 font-bold text-left transition transform hover:-translate-y-0.5 text-sm shadow-sm';
+                    const icon = btn.querySelector('i');
+                    if (icon) icon.className = icon.className.replace('text-slate-500', 'text-brand-600');
+                } else {
+                    btn.className = 'submercado-btn p-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-left transition transform hover:-translate-y-0.5 text-sm';
+                    const icon = btn.querySelector('i');
+                    if (icon) icon.className = icon.className.replace('text-brand-600', 'text-slate-500');
+                }
+            });
+            renderSubmercado(index);
+        }
+        seleccionarSubmercado(0);
+
+        // -------------------------------------------------------------
+        // 3. CALCULADORA DE LOCALIZACIÓN
+        // -------------------------------------------------------------
+        function calcularLocalizacion() {
+            // Validar límites 1 a 10
+            ['pesoA1','pesoA2','pesoA3','pesoA4','pesoB1','pesoB2','pesoB3','pesoB4'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    let v = parseFloat(el.value);
+                    if (isNaN(v) || v < 1) el.value = 1;
+                    if (v > 10) el.value = 10;
+                }
+            });
+
+            const a1 = parseFloat(document.getElementById('pesoA1').value) || 0;
+            const a2 = parseFloat(document.getElementById('pesoA2').value) || 0;
+            const a3 = parseFloat(document.getElementById('pesoA3').value) || 0;
+            const a4 = parseFloat(document.getElementById('pesoA4').value) || 0;
+
+            const b1 = parseFloat(document.getElementById('pesoB1').value) || 0;
+            const b2 = parseFloat(document.getElementById('pesoB2').value) || 0;
+            const b3 = parseFloat(document.getElementById('pesoB3').value) || 0;
+            const b4 = parseFloat(document.getElementById('pesoB4').value) || 0;
+
+            const scoreA = (a1 * 0.30) + (a2 * 0.25) + (a3 * 0.25) + (a4 * 0.20);
+            const scoreB = (b1 * 0.30) + (b2 * 0.25) + (b3 * 0.25) + (b4 * 0.20);
+
+            document.getElementById('scoreA').innerText = scoreA.toLocaleString('es-PY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('scoreB').innerText = scoreB.toLocaleString('es-PY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            const veredicto = document.getElementById('veredicto-loc');
+            if (scoreB > scoreA) {
+                veredicto.innerHTML = `Ubicación recomendada: <strong>Opción B (Villeta - Score: ${scoreB.toFixed(2)})</strong> supera a Opción A (${scoreA.toFixed(2)}).`;
+            } else if (scoreA > scoreB) {
+                veredicto.innerHTML = `Ubicación recomendada: <strong>Opción A (Asunción - Score: ${scoreA.toFixed(2)})</strong> supera a Opción B (${scoreB.toFixed(2)}).`;
+            } else {
+                veredicto.innerHTML = `Ambas opciones obtuvieron un puntaje idéntico (${scoreA.toFixed(2)}). Se sugiere analizar factores secundarios cualitativos.`;
+            }
+        }
+
+        // -------------------------------------------------------------
+        // 4. SIMULADOR FINANCIERO VAN Y TIR CON CHART.JS
+        // -------------------------------------------------------------
+        let chartInstance = null;
+
+        function formatearMoneda(valor, prefijo = '$') {
+            const abs = Math.abs(valor);
+            const partes = abs.toFixed(2).split('.');
+            const enteros = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            const decimales = partes[1];
+            const signo = valor < 0 ? '-' : (valor > 0 && prefijo === '+$' ? '+' : '');
+            const p = prefijo.replace('+', '');
+            return `${signo}${p}${enteros},${decimales}`;
+        }
+
+        function actualizarSimulacion() {
+            const I0 = parseFloat(document.getElementById('inputI0').value) || 0;
+            const kInput = parseFloat(document.getElementById('inputK').value) || 0;
+            const k = kInput / 100;
+
+            const f1 = parseFloat(document.getElementById('f1').value) || 0;
+            const f2 = parseFloat(document.getElementById('f2').value) || 0;
+            const f3 = parseFloat(document.getElementById('f3').value) || 0;
+            const f4 = parseFloat(document.getElementById('f4').value) || 0;
+            const f5 = parseFloat(document.getElementById('f5').value) || 0;
+            const flujos = [f1, f2, f3, f4, f5];
+
+            // Cálculo BNA exacto
+            let bna = 0;
+            const flujosDescontados = [];
+            flujos.forEach((f, idx) => {
+                const t = idx + 1;
+                const fd = f / Math.pow(1 + k, t);
+                bna += fd;
+                flujosDescontados.push(fd);
+            });
+
+            const van = bna - I0;
+
+            // Estimación de TIR por bisección robusta
+            let tir = 0;
+            let npvLow = -I0 + flujos.reduce((acc, f, i) => acc + f / Math.pow(1 + 0.0001, i + 1), 0);
+            let npvHigh = -I0 + flujos.reduce((acc, f, i) => acc + f / Math.pow(1 + 2.0, i + 1), 0);
+
+            if (npvLow > 0 && npvHigh < 0) {
+                let low = 0.0001, high = 2.0;
+                for (let iter = 0; iter < 60; iter++) {
+                    const mid = (low + high) / 2;
+                    const npvMid = -I0 + flujos.reduce((acc, f, i) => acc + f / Math.pow(1 + mid, i + 1), 0);
+                    if (npvMid > 0) low = mid;
+                    else high = mid;
+                    tir = mid;
+                }
+            } else if (npvLow <= 0) {
+                tir = 0;
+            } else {
+                tir = 2.0;
+            }
+
+            document.getElementById('resBNA').innerText = formatearMoneda(bna, '$');
+            const vanElem = document.getElementById('resVAN');
+            vanElem.innerText = formatearMoneda(van, '+$');
+            vanElem.className = van >= 0 ? 'font-mono font-black text-emerald-400 text-base' : 'font-mono font-black text-rose-400 text-base';
+
+            const tirFormateada = (tir * 100).toFixed(2).replace('.', ',') + '%';
+            document.getElementById('resTIR').innerText = tirFormateada;
+
+            const badge = document.getElementById('badgeDecision');
+            const cumpleVAN = van > 0;
+            const cumpleTIR = tir > k;
+
+            if (cumpleVAN && cumpleTIR) {
+                badge.className = 'p-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold text-center text-xs';
+                badge.innerHTML = `<i class="fa-solid fa-circle-check mr-1.5"></i>EL PROYECTO ES VIABLE (VAN > 0 y TIR > k = ${kInput}%)`;
+            } else if (van === 0) {
+                badge.className = 'p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-center text-xs';
+                badge.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1.5"></i>PROYECTO INDIFERENTE (VAN = 0 y TIR = k)';
+            } else {
+                badge.className = 'p-2.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold text-center text-xs';
+                badge.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1.5"></i>SE RECHAZA EL PROYECTO (VAN < 0 o TIR < k = ${kInput}%)`;
+            }
+
+            // Actualizar Chart
+            const ctx = document.getElementById('chartVAN').getContext('2d');
+            const dataChart = {
+                labels: ['Año 0 (Inversión)', 'Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'],
+                datasets: [
+                    {
+                        label: 'Flujo Nominal ($)',
+                        data: [-I0, f1, f2, f3, f4, f5],
+                        backgroundColor: 'rgba(14, 165, 233, 0.4)',
+                        borderColor: '#0ea5e9',
+                        borderWidth: 2,
+                        borderRadius: 6
+                    },
+                    {
+                        label: `Flujo Descontado al ${kInput}% ($)`,
+                        data: [-I0, flujosDescontados[0], flujosDescontados[1], flujosDescontados[2], flujosDescontados[3], flujosDescontados[4]],
+                        backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                        borderColor: '#6366f1',
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }
+                ]
+            };
+
+            if (chartInstance) {
+                chartInstance.data = dataChart;
+                chartInstance.update();
+            } else {
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: dataChart,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8', font: { size: 11 } }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#334155' } },
+                            y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#334155' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function restablecerEjercicioExamen() {
+            document.getElementById('inputI0').value = 12000;
+            document.getElementById('inputK').value = 14;
+            document.getElementById('f1').value = 4000;
+            document.getElementById('f2').value = 4000;
+            document.getElementById('f3').value = 4000;
+            document.getElementById('f4').value = 4000;
+            document.getElementById('f5').value = 5000;
+            actualizarSimulacion();
+        }
+        actualizarSimulacion();
+
+        // -------------------------------------------------------------
+        // 5. FLASHCARDS 3D (con prevención de revelar la siguiente respuesta)
+        // -------------------------------------------------------------
+        const flashcards = [{"categoria": "Fundamentos (Clase 3)", "pregunta": "¿Cuál es la diferencia fundamental entre un Proyecto Privado y un Proyecto Social?", "respuesta": "El <b>Proyecto Privado</b> exige <b>demanda con capacidad de pago efectiva</b> para generar utilidades económicas a inversores privados.<br><br>El <b>Proyecto Social</b> responde a <b>necesidades colectivas insatisfechas</b> (promovido por el Estado/ONGs) para bienestar general, sin exigir capacidad de pago obligatoria a los beneficiarios.", "pista": "Criterio rector: lucro financiero vs. bienestar colectivo sin exigencia de pago"}, {"categoria": "Preinversión (Clase 3)", "pregunta": "¿Cuáles son las 4 etapas de la Fase de Preinversión y en cuál se asumen los datos como constantes a futuro?", "respuesta": "1. <b>Idea:</b> Oportunidad preliminar.<br>2. <b>Perfil:</b> Estimaciones globales.<br>3. <b>Prefactibilidad:</b> Profundización con fuentes secundarias donde <b>los datos vigentes se asumen como constantes a futuro</b>.<br>4. <b>Factibilidad (Definitivo):</b> Diseños finales y cotizaciones demostradas.", "pista": "Secuencia I - P - P - F; la penúltima asume estabilidad de variables"}, {"categoria": "Planificación (Clase 3)", "pregunta": "¿Qué es el Diagrama de Gantt y qué software informático cita la cátedra para la gestión de proyectos?", "respuesta": "Es una herramienta gráfica cronológica que representa la duración presupuestada para cada tarea, fechas críticas, responsables y dependencias.<br><br>Software oficial citado: <b>GanttProject</b> (código abierto) y <b>Trello</b> (gestión colaborativa de flujos de trabajo).", "pista": "Herramienta de barras temporales; una app de escritorio open-source y un tablero kanban web"}, {"categoria": "Estudio de Mercado (Clase 4)", "pregunta": "¿Cuáles son los 5 Submercados que componen el mercado del proyecto?", "respuesta": "1. <b>Proveedor:</b> Calidad, precio y oportunidad de insumos (impacta costos fabriles).<br>2. <b>Competidor:</b> Competidores directos y bienes sustitutos.<br>3. <b>Distribuidor:</b> Canales comerciales y logística física.<br>4. <b>Consumidor:</b> Hábitos y capacidad de pago efectiva.<br>5. <b>Externo:</b> Variables macroeconómicas, divisas y comercio internacional.", "pista": "Tres agentes de la cadena operativa (origen, traslado, destino) más el entorno rival y global"}, {"categoria": "Demografía (Clase 5)", "pregunta": "¿Cómo se articulan las edades de la PEA y las MEF en la pirámide poblacional?", "respuesta": "• <b>Población Económicamente Activa (PEA):</b> Comprende de <b>15 a 64 años</b>.<br>• <b>Mujeres en Edad Fértil (MEF):</b> Comprende de <b>15 a 49 años</b>.<br>• <b>Franja de intersección/solapamiento:</b> El tramo de <b>15 a 49 años</b> concentra simultáneamente a la fuerza laboral y al núcleo de reproducción y consumo familiar.", "pista": "La franja laboral amplia llega a 64 años; el subconjunto fértil y laboral común llega a 49"}, {"categoria": "Estrategias de Mercado (Clase 4)", "pregunta": "¿Cuáles son las 3 estrategias competitivas genéricas postuladas por Michael Porter?", "respuesta": "1. <b>Liderazgo en Costos:</b> Eficiencia máxima y economías de escala para ofrecer los precios más bajos.<br>2. <b>Diferenciación:</b> Atributos únicos percibidos por el cliente (calidad, diseño, marca) que justifican un sobreprecio.<br>3. <b>Enfoque o Nicho:</b> Especialización exclusiva en un segmento o región específica.", "pista": "Costos bajos globales, singularidad valorada por el cliente, o concentración en un nicho"}, {"categoria": "Estudio Técnico (Clase 6)", "pregunta": "¿Cuáles son las 5 preguntas básicas que debe responder el Estudio Técnico?", "respuesta": "1. <b>¿Dónde?</b> (Localización)<br>2. <b>¿Cuánto?</b> (Tamaño y Capacidad)<br>3. <b>¿Cuándo?</b> (Cronograma y Tiempo)<br>4. <b>¿Cómo?</b> (Ingeniería y Procesos)<br>5. <b>¿Con qué?</b> (Equipos, Materiales y Recursos).", "pista": "Lugar, volumen, momento temporal, método de manufactura y medios materiales"}, {"categoria": "Localización (Clase 6)", "pregunta": "¿En qué se diferencian la Macrolocalización y la Microlocalización?", "respuesta": "• <b>Macrolocalización:</b> Elección de la región, departamento o zona geográfica amplia según cercanía a insumos, mercado y políticas tributarias.<br>• <b>Microlocalización:</b> Determinación del lote, predio o dirección física exacta dentro de la zona urbana/industrial (vías de acceso, servicios básicos, costo del suelo).", "pista": "Ámbito geográfico regional/departamental vs. predio o inmueble puntual"}, {"categoria": "MIPYMES Paraguay (Decreto 4535)", "pregunta": "¿Cuáles son los parámetros oficiales para una Pequeña Empresa (PE) según el nuevo Decreto Nº 4535 / Ley 7444?", "respuesta": "Conforme al <b>Artículo 5º del Decreto Nº 4535</b> vigente en el cuaderno:<br>• <b>Personal ocupado:</b> De 11 a <b>30 trabajadores</b>.<br>• <b>Facturación bruta anual:</b> Hasta <b>₲ 5.000.000.000</b> (cinco mil millones de guaraníes).<br><small class='text-slate-400'>*Prevalencia: Si hay discrepancia en el número de trabajadores, el Art. 6º establece que prevalece el indicado por el MTESS.</small>", "pista": "Tramo intermedio de trabajadores (hasta 30) con un techo redondo de cinco mil millones"}, {"categoria": "Planificación Social (Clase 7)", "pregunta": "¿Cuál es la jerarquía descendente de la planificación social desde el nivel macro al operativo?", "respuesta": "1. <b>Política Social:</b> Directriz estratégica y filosófica del Estado.<br>2. <b>Plan Social:</b> Marco temporal y presupuestario integral de desarrollo.<br>3. <b>Programa Social:</b> Conjunto coordinado de proyectos con meta sectorial común.<br>4. <b>Proyecto Social:</b> Unidad mínima operativa de asignación de recursos.", "pista": "De la doctrina política al plan maestro, luego al agrupamiento sectorial y a la unidad de acción básica"}, {"categoria": "Evaluación Financiera: VAN (Clase 10)", "pregunta": "¿Cuál es la regla de decisión matemática del Valor Actual Neto (VAN)?", "respuesta": "• Si <b>VAN > 0:</b> <b>SE ACEPTA</b> (genera riqueza adicional por encima del costo de capital $k$).<br>• Si <b>VAN = 0:</b> <b>INDIFERENTE</b> (rinde exactamente la tasa de descuento $k$).<br>• Si <b>VAN < 0:</b> <b>SE RECHAZA</b> (destruye valor; rinde menos que $k$).", "pista": "Signo positivo suma riqueza, neutro empata la tasa de corte, negativo destruye capital"}, {"categoria": "Flujo de Caja y Depreciación (Clase 10)", "pregunta": "¿Cuál es el rol de la Depreciación en el Flujo de Caja y por qué se suma tras los impuestos?", "respuesta": "La depreciación es un costo contable <b>no desembolsable</b> (no sale dinero físico de caja).<br>1. Se <b>resta antes de impuestos</b> para aminorar la base imponible del Impuesto a la Renta, generando un <b>escudo fiscal</b> (ahorro tributario).<br>2. Se <b>suma nuevamente al flujo neto</b> porque los fondos nunca salieron de la empresa.", "pista": "Gasto deducible que reduce el tributo fiscal sin implicar salida real de billetes"}];
+        let currentCardIndex = 0;
+        let isFlipped = false;
+
+        function updateFlashcardUI() {
+            const card = flashcards[currentCardIndex];
+            document.getElementById('fc-categoria').innerText = card.categoria;
+            document.getElementById('fc-pregunta').innerText = card.pregunta;
+            document.getElementById('fc-respuesta').innerHTML = card.respuesta;
+            document.getElementById('fc-pista').innerText = card.pista;
+            document.getElementById('fc-counter').innerText = `Tarjeta ${currentCardIndex + 1} de ${flashcards.length}`;
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('flashcard-container'), {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        function voltearTarjeta() {
+            const inner = document.getElementById('flashcard-inner');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                inner.classList.add('rotate-y-180');
+            } else {
+                inner.classList.remove('rotate-y-180');
+            }
+        }
+
+        function cambiarTarjeta(delta) {
+            const inner = document.getElementById('flashcard-inner');
+            if (isFlipped) {
+                // Rotar primero al frente y actualizar texto a mitad de camino para no spoilear
+                inner.classList.remove('rotate-y-180');
+                isFlipped = false;
+                setTimeout(() => {
+                    currentCardIndex = (currentCardIndex + delta + flashcards.length) % flashcards.length;
+                    updateFlashcardUI();
+                }, 200);
+            } else {
+                currentCardIndex = (currentCardIndex + delta + flashcards.length) % flashcards.length;
+                updateFlashcardUI();
+            }
+        }
+
+        function siguienteTarjeta() { cambiarTarjeta(1); }
+        function anteriorTarjeta() { cambiarTarjeta(-1); }
+        updateFlashcardUI();
+
+        // -------------------------------------------------------------
+        // 6. SIMULACRO DE EXAMEN (Quiz interactivo bloqueable y sin innerHTML masivo)
+        // -------------------------------------------------------------
+        const quizData = [{"pregunta": "1. ¿Cuál es la condición sine qua non que justifica la viabilidad de un proyecto de inversión de carácter empresarial o privado?", "opciones": ["La resolución de una necesidad colectiva insatisfecha declarada de interés general.", "La existencia demostrada de una demanda con capacidad de pago efectiva dispuesta a abonar el precio.", "La obtención previa de subsidios estatales o exenciones impositivas de fomento industrial.", "La disponibilidad de financiamiento bancario a tasas preferenciales de desarrollo."], "correcta": 1, "explicacion": "El proyecto privado o empresarial se sustenta exclusivamente en una demanda con capacidad de pago efectiva que garantice lucro financiero a los accionistas, a diferencia del proyecto social."}, {"pregunta": "2. En el ciclo de preinversión, ¿en qué nivel de maduración se asumen los datos actuales del mercado como constantes a futuro para realizar las proyecciones preliminares?", "opciones": ["En el Estudio de Prefactibilidad.", "En el Perfil del Proyecto.", "En la Fase de Idea Inicial.", "En el Estudio Definitivo o de Factibilidad."], "correcta": 0, "explicacion": "En el Estudio de Prefactibilidad se profundiza con fuentes secundarias y cuantitativas, asumiendo preliminarmente los datos vigentes como constantes hacia el futuro."}, {"pregunta": "3. En la metodología de gestión y planificación de proyectos, ¿qué aplicación de código abierto es destacada en el material para elaborar diagramas temporales de Gantt?", "opciones": ["Microsoft Project Server", "Primavera P6 Enterprise", "GanttProject", "Asana Cloud Workflow"], "correcta": 2, "explicacion": "La cátedra cita formalmente a GanttProject (junto con Trello para la coordinación colaborativa de flujos de trabajo)."}, {"pregunta": "4. Al estudiar los cinco submercados del proyecto, ¿cuál de ellos ejerce un impacto directo y determinante sobre los costos fabriles y la viabilidad técnica?", "opciones": ["El submercado consumidor", "El submercado distribuidor", "El submercado competidor", "El submercado proveedor"], "correcta": 3, "explicacion": "El submercado proveedor condiciona la calidad, precio y regularidad de entrega de materias primas e insumos, impactando directamente sobre los costos fabriles."}, {"pregunta": "5. En el análisis sociodemográfico de la demanda, ¿qué significado tiene la cohorte de 15 a 49 años respecto a la PEA y las MEF?", "opciones": ["Constituye exclusivamente el grupo de población pasiva transitoria.", "Representa la franja de intersección donde coinciden la fuerza laboral activa y las mujeres en edad fértil.", "Define el segmento poblacional en situación de retiro con alta propensión marginal al consumo.", "Corresponde a la población total con cobertura de seguridad social obligatoria."], "correcta": 1, "explicacion": "La PEA comprende de 15 a 64 años y las MEF de 15 a 49 años; por lo tanto, el tramo 15 a 49 años es la zona de solapamiento que moviliza el empleo y el consumo reproductivo/familiar."}, {"pregunta": "6. De acuerdo con el nuevo marco normativo de MIPYMES en Paraguay (Decreto Nº 4535 / Ley Nº 7444), ¿cuáles son los parámetros vigentes para una Pequeña Empresa (PE)?", "opciones": ["Hasta 10 trabajadores y facturación bruta anual de hasta ₲ 1.000.000.000.", "De 11 a 30 trabajadores y facturación bruta anual de hasta ₲ 5.000.000.000.", "De 31 a 50 trabajadores y facturación bruta anual de hasta ₲ 10.000.000.000.", "Hasta 20 trabajadores y facturación bruta anual de hasta ₲ 2.500.000.000."], "correcta": 1, "explicacion": "El Artículo 5º del nuevo Decreto Nº 4535 clasifica a la Pequeña Empresa (PE) con un plantel de 11 a 30 trabajadores y una facturación bruta anual del ejercicio anterior de hasta ₲ 5.000.000.000."}, {"pregunta": "7. En la formulación de políticas públicas y proyectos sociales, ¿cuál es el orden jerárquico descendente correcto de planificación?", "opciones": ["Política Social -> Plan Social -> Programa Social -> Proyecto Social", "Plan Social -> Política Social -> Proyecto Social -> Programa Social", "Programa Social -> Plan Social -> Política Social -> Proyecto Social", "Política Social -> Programa Social -> Plan Social -> Proyecto Social"], "correcta": 0, "explicacion": "La jerarquía formal va de lo macro a lo micro: Política (directriz estatal) -> Plan (marco global de desarrollo) -> Programa (coordinación sectorial) -> Proyecto (unidad operativa concreta)."}, {"pregunta": "8. Si un proyecto de inversión presenta un Valor Actual Neto negativo (VAN < 0) descontado al costo de capital (k):", "opciones": ["Debe aceptarse si la inversión física ya fue desembolsada en su totalidad.", "Es financieramente neutro puesto que el capital de trabajo compensa el déficit.", "Debe rechazarse porque los flujos actualizados no cubren la rentabilidad mínima exigida y destruyen valor.", "Presenta necesariamente una TIR mayor que la tasa de descuento de corte del mercado."], "correcta": 2, "explicacion": "Un VAN negativo indica que el valor presente de los flujos netos proyectados (BNA) es inferior al capital invertido, lo que significa que el proyecto rinde menos que la tasa de corte y destruye riqueza."}, {"pregunta": "9. ¿Qué define matemáticamente a la Tasa Interna de Retorno (TIR)?", "opciones": ["Es la tasa de interés de los préstamos bancarios a largo plazo utilizados en el montaje.", "Es el cociente contable entre las utilidades netas del último año y la depreciación acumulada.", "Es la tasa de actualización que iguala exactamente el BNA con la inversión inicial, haciendo que el VAN sea cero.", "Es el porcentaje de incremento anual en el volumen físico producido por la planta instalada."], "correcta": 2, "explicacion": "Por definición financiera estricta, la TIR es la tasa de descuento r para la cual el Valor Actual Neto se anula matemáticamente: VAN(TIR) = 0."}, {"pregunta": "10. ¿Por qué razón contable y tributaria la depreciación se resta antes del impuesto a la renta y luego se reintegra al Flujo de Caja Neto?", "opciones": ["Porque duplica el capital social registrado en los estatutos constitutivos de la firma.", "Porque permite registrar una reserva de efectivo inmovilizada en cuentas a la vista del banco.", "Porque es un costo deducible que genera un escudo fiscal pero no implica una salida física de dinero en efectivo.", "Porque la legislación laboral exige compensar las cargas sociales con el desgaste de los bienes de uso."], "correcta": 2, "explicacion": "La depreciación es un gasto deducible que reduce la base imponible del impuesto (ahorro fiscal), pero al no constituir un egreso monetario real de fondos, se le suma nuevamente para reflejar el efectivo verdadero disponible."}];
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        function initQuizDOM() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizData.map((item, qIdx) => {
+                const opcionesHtml = item.opciones.map((op, oIdx) => `
+                    <div id="q_${qIdx}_opt_${oIdx}" class="quiz-option flex items-start p-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition text-xs sm:text-sm text-slate-800" onclick="seleccionarOpcion(${qIdx}, ${oIdx})">
+                        <input type="radio" id="input_${qIdx}_${oIdx}" name="q_${qIdx}" value="${oIdx}" class="mt-0.5 mr-3 text-brand-600 focus:ring-brand-500 pointer-events-none">
+                        <span>${op}</span>
+                    </div>
+                `).join('');
+
+                return `
+                    <div id="quiz_card_${qIdx}" class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full">Pregunta ${qIdx + 1} de ${quizData.length}</span>
+                        </div>
+                        <h4 class="font-extrabold text-slate-900 text-sm sm:text-base mb-3 leading-snug">${item.pregunta}</h4>
+                        <div class="space-y-2">
+                            ${opcionesHtml}
+                        </div>
+                        <div id="feedback_${qIdx}" class="hidden mt-3.5 p-3.5 rounded-xl text-xs"></div>
+                    </div>
+                `;
+            }).join('');
+
+            if (window.renderMathInElement) {
+                renderMathInElement(container, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        function seleccionarOpcion(qIdx, oIdx) {
+            // Si ya respondió esta pregunta, no permitir cambiar la respuesta (anti-hack)
+            if (userAnswers[qIdx] !== null) return;
+
+            userAnswers[qIdx] = oIdx;
+
+            // Marcar radio
+            const radio = document.getElementById(`input_${qIdx}_${oIdx}`);
+            if (radio) radio.checked = true;
+
+            // Deshabilitar todas las opciones de esta pregunta
+            const item = quizData[qIdx];
+            const esCorrecta = oIdx === item.correcta;
+
+            for (let i = 0; i < item.opciones.length; i++) {
+                const optEl = document.getElementById(`q_${qIdx}_opt_${i}`);
+                optEl.classList.remove('hover:bg-slate-50', 'cursor-pointer');
+                optEl.classList.add('cursor-default');
+
+                if (i === item.correcta) {
+                    optEl.classList.add('border-emerald-500', 'bg-emerald-50/80', 'font-semibold');
+                } else if (i === oIdx && !esCorrecta) {
+                    optEl.classList.add('border-rose-400', 'bg-rose-50/80');
+                }
+            }
+
+            // Mostrar feedback
+            const fb = document.getElementById(`feedback_${qIdx}`);
+            fb.classList.remove('hidden');
+            if (esCorrecta) {
+                fb.className = 'mt-3.5 p-3.5 rounded-xl text-xs bg-emerald-50 text-emerald-900 border border-emerald-200';
+                fb.innerHTML = `
+                    <div class="font-bold mb-1 flex items-center">
+                        <i class="fa-solid fa-circle-check text-emerald-600 mr-2 text-sm flex-shrink-0"></i>¡Respuesta Correcta!
+                    </div>
+                    <p class="leading-relaxed">${item.explicacion}</p>
+                `;
+            } else {
+                fb.className = 'mt-3.5 p-3.5 rounded-xl text-xs bg-rose-50 text-rose-900 border border-rose-200';
+                fb.innerHTML = `
+                    <div class="font-bold mb-1 flex items-center">
+                        <i class="fa-solid fa-circle-xmark text-rose-600 mr-2 text-sm flex-shrink-0"></i>Respuesta Incorrecta
+                    </div>
+                    <p class="leading-relaxed">${item.explicacion}</p>
+                `;
+            }
+
+            calcularPuntajeQuiz();
+        }
+
+        function calcularPuntajeQuiz() {
+            let score = 0;
+            let contestadas = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null) {
+                    contestadas++;
+                    if (ans === quizData[idx].correcta) score++;
+                }
+            });
+            document.getElementById('quiz-score-badge').innerText = `${score} / ${quizData.length}`;
+
+            const resElem = document.getElementById('quiz-final-result');
+            if (contestadas === quizData.length) {
+                resElem.classList.remove('hidden');
+                if (score >= 8) {
+                    resElem.innerHTML = `<span class="text-emerald-700 font-black">🎉 ¡Excelente preparación! (${score}/10). Demostraste un dominio sólido para el examen.</span>`;
+                } else if (score >= 6) {
+                    resElem.innerHTML = `<span class="text-amber-700 font-black">⚠️ Buen intento (${score}/10). Repasa los conceptos fallidos en las Flashcards y el informe.</span>`;
+                } else {
+                    resElem.innerHTML = `<span class="text-rose-700 font-black">❌ Rendimiento bajo (${score}/10). Te recomendamos leer atentamente la guía de estudio abajo antes de rendir.</span>`;
+                }
+            }
+        }
+
+        function reiniciarQuiz() {
+            userAnswers = new Array(quizData.length).fill(null);
+            document.getElementById('quiz-final-result').classList.add('hidden');
+            document.getElementById('quiz-score-badge').innerText = `0 / ${quizData.length}`;
+            initQuizDOM();
+        }
+        initQuizDOM();
+
+        // -------------------------------------------------------------
+        // 7. UTILIDADES (Menú móvil, Lightbox, Copiar limpio)
+        // -------------------------------------------------------------
+        function toggleMenuMovil() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function abrirLightbox() {
+            const lb = document.getElementById('lightbox');
+            if (lb) lb.classList.add('active');
+        }
+
+        function cerrarLightbox(e) {
+            const lb = document.getElementById('lightbox');
+            if (lb) lb.classList.remove('active');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cerrarLightbox();
+        });
+
+        function copiarInformeTexto() {
+            // Copiar el texto limpio evitando MathML duplicado
+            const reportEl = document.querySelector('.prose-report');
+            if (!reportEl) return;
+            const clone = reportEl.cloneNode(true);
+            clone.querySelectorAll('.katex-mathml').forEach(el => el.remove());
+            const texto = clone.innerText;
+
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('¡Informe copiado al portapapeles!');
+            }).catch(() => {
+                alert('No se pudo copiar automáticamente. Puedes seleccionarlo manualmente.');
+            });
+        }
+    </script>
+</body>
+</html>

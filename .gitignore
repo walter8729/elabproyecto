@@ -1,0 +1,6 @@
+# Archivos temporales de scripts y dumps de texto
+*.txt
+*.py
+*.json
+template.html
+.vscode/
